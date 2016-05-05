@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf8" />
+<meta name="author" content="zhou.jinyu" />
+<object th:include="fragments/navbar :: head"></object>
+<link href="/css/hr.css" rel="stylesheet" />
+<link href="/css/iver.css" rel="stylesheet" />
+<style>
+.row {
+	margin-top: 10px;
+	border: 0px solid red;
+
+}
+.bg-title
+{
+	background-color: #43b945;
+	color:white;
+	padding:0px;
+	font-family: 黑体;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left:12px;
+}
+li span{
+	cursor:pointer;
+}
+</style>
+<script>
+$(document).ready(function(){
+	$("li span.item_desc").click(function(){
+		var item_id = $(this).next().attr("id");
+		var item_desc = $("#item_desc"+item_id).html();
+		var score_std = $("input[name=item"+item_id+"]").val();
+		console.log(item_id+"  "+item_desc+" "+score_std);
+		$("#item_exp").html(score_std);
+		$("#item_title").html(item_desc);
+	})
+	$("li span.badge").click(function(){
+		var item_id =  $(this).attr("id");
+		console.log("get item id "+item_id);
+		deleteItem($(this).parent(),item_id);
+	});
+	$("#add_score_item_btn").click(function(){
+		var item_title = $("#score_item_title").val();
+		var item_std = $("#score_item_std").val();
+		createItem(item_title,item_std);
+	});
+})
+function deleteItem(caller,item_id) {
+	$("li span.badge").attr("disabled","disabled");
+	var url = "/scoreItems/delete";
+	var data = {
+			item_id:item_id
+	};
+	var success = function(json){
+		console.log("calling");
+		if(json.info == 'success') {
+			warninghide("success",0,1000);
+			caller.hide(100);
+		} else {
+			warninghide("failed",1,1000);
+		}
+	}
+	doAjax(url,data,success,success);
+}
+function createItem(item_title,item_std) {
+	var url = "/scoreItems/create";
+	var data= {
+			item_title:item_title,
+			item_std:item_std
+	};
+	doSimpleAjax(url,data);
+	
+}
+</script>
+</head>
+
+<body>
+
+	<div th:replace="fragments/navbar :: navbar"></div>
+	<div class="alert alert-danger" id="msg" role="alert">...</div>
+	<input id="iv_id" th:value="${iv_id}" hidden="true" />
+	<div class="container">
+
+
+		<div class="row" >
+			<div class="col-xs-6"></div>
+			<div class="col-xs-6 ">
+				<h3 >
+					【<span id="item_title"></span>】评分标准
+				</h3>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-4">
+				<ul class="list-group">
+					<li class="list-group-item" th:each="item: ${items}" >
+						<span th:text="${item[item_desc]}" th:id="item_desc+${item[item_id]}" class="item_desc"/>
+						<span th:id = "${item[item_id]}" class="badge" th:text="${'X'}"></span>
+						<input th:name="'item'+${item[item_id]}" type="hidden"  th:value="${item[score_std]}" /> 
+					</li>
+				</ul>
+			</div>
+			<div class="col-xs-2" />
+			<div class="col-xs-6">
+				<textarea rows="5" class="form-control" id="item_exp" disabled="disabled"/>
+			</div>
+		</div>
+
+
+
+
+		<div class="row " style="margin-top: 80px" >
+			<div class="col-xs-6  ">
+				<h3 >添加新的面试量化评价项目</h3>
+			</div>
+		</div>
+		<div class="row" id="score_item_input">
+
+			<div class="col-xs-2">
+				<input type="text" placeholder="评分项" id="score_item_title"/>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-8">
+				<textarea rows="6" class="form-control" placeholder="评分项描述，打分标准" id="score_item_std" />
+			</div>
+		</div>
+		<div class="row" style="margin-top: 12px">
+			<div class="col-xs-2">
+				<button class="btn btn-success"  id="add_score_item_btn">添加</button>
+			</div>
+		</div>
+
+	</div>
+
+
+
+
+</body>
+</html>

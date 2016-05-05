@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta name="author" content="dong.yufei" />
+<meta charset="utf-8" />
+<object th:include="fragments/navbar :: head" th:remove="tag"></object>
+<object th:replace="fragments/button :: script" th:remove="tag"></object>
+<script src="/js/laydate.js"></script>
+
+<object th:replace="fragments/button :: script" th:remove="tag"></object>
+<link href="/css/hr.css" rel="stylesheet" />
+<link href="/css/iver.css" rel="stylesheet" />
+<script th:inline="javascript">
+	/*<![CDATA[*/
+	$(document).ready(function(){
+		bindMenuClick();
+	});
+	           
+	function createInterview(interviewId) {
+		window.location = "/interview/edit?interview_id=" + interviewId;
+		$('button').attr('disabled', "true");
+		setTimeout(function() {
+			$('button').removeAttr("disabled");//把按钮id为submit的按钮启用
+		}, 5000);
+	}
+
+	function openLittle(flowId) {
+		window.open("/interview/createfinal?flow_id=" + flowId + "&leader_enter=true", "", "fullscreen=0");
+	}
+	/*]]>*/
+</script>
+</head>
+
+<body>
+	<div th:replace="fragments/navbar :: navbar(whosePage=leader)"></div>
+	<div class="alert alert-danger" id="msg" role="alert">...</div>
+	<div class="container">
+<!-- 	<span class="tit" >通过</span> -->
+		<div class="row">
+			<div class="col-md-2">
+				<div th:replace="fragments/navbar :: departmentleftbar"></div>
+			</div>
+			<div class="col-md-10">
+				<form action="/departmentflow">
+					<div class="col-md-10">
+
+						<div class="row">
+							<div class="col-md-3">
+								<div class="form-group">
+									<label for="resumeName">候选人</label> <input type="text"
+										class="form-control" id="resumename" name="resumename"
+										placeholder="名字" th:value="${resumename}" />
+								</div>
+							</div>
+
+							<div class="col-md-3">
+								<div class="form-group">
+									<label for="position">职位</label> <select class="form-control"
+										id="position" name="position" th:value="${position}">
+										<option value="0">全部</option>
+										<option th:each="position1:${positionList}"
+											th:value="${position1.id}" th:text="${position1.name}"
+											th:selected="${position1.id==position}?'selected'"></option>
+									</select>
+								</div>
+							</div>
+
+							<div class="col-md-3">
+								<div class="form-group">
+									<label for="sender">审批人</label> <input type="text"
+										class="form-control" id="sender" name="sender"
+										placeholder="名字" th:value="${sender}"  />
+								</div>
+							</div>
+
+
+							<div class="col-md-3">
+								<div class="form-group">
+									<label for="state">状态</label> <select class="form-control"
+										id="state" name="leftnav">
+										<option value="-1" th:selected="${leftnav==-1}?'selected'">全部</option>
+										<option value="0" th:selected="${leftnav==0}?'selected'">简历待评估</option>
+										<option value="1" th:selected="${leftnav==1}?'selected'">简历通过</option>
+										<option value="2" th:selected="${leftnav==2}?'selected'">简历待定</option>
+										<option value="3" th:selected="${leftnav==3}?'selected'">简历未通过</option>
+										<option value="4" th:selected="${leftnav==4}?'selected'">待安排面试</option>
+										<option value="5" th:selected="${leftnav==5}?'selected'">面试中</option>
+										<option value="6" th:selected="${leftnav==6}?'selected'">面试成功</option>
+										<option value="7" th:selected="${leftnav==7}?'selected'">面试失败</option>
+										<option value="8" th:selected="${leftnav==8}?'selected'">待发放入职通知</option>
+										<option value="9" th:selected="${leftnav==9}?'selected'">待入职</option>
+										<option value="10" th:selected="${leftnav==10}?'selected'">已入职</option>
+										<option value="11" th:selected="${leftnav==11}?'selected'">拒绝入职</option>
+									</select>
+								</div>
+							</div>
+						</div>
+
+						<div class="row">
+
+
+
+							
+							<div class="col-md-4">
+									<div class="form-group">
+										<label for="datestart"></label> <input type="text" class="form-control laydate-icon" id="start" name="start"
+											style="height: 35px; margin-top: 5px;" placeholder="开始日期" onchange="editDate();" th:value="${startday}" />
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="form-group">
+										<label for="dateend"></label> <input type="text" class="form-control laydate-icon" id="end" name="end"
+											style="height: 35px; margin-top: 5px;" placeholder="结束日期" onchange="editDate();" th:value="${endday} " />
+									</div>
+								</div>
+
+
+
+							<div class="col-md-2">
+								<button type="submit" class="btn btn-default"  style="height: 35px; margin-top: 22px;" >搜索</button>
+							</div>
+						</div>
+
+					</div>
+
+				</form>
+
+				<div class="row" style="height:600px;">
+					<div class="col-md-12">
+						<h4>简历列表</h4>
+						<table class="table table-bordered">
+							<tr>
+								<th style="width: 10%;">候选人</th>
+								<th style="width: 10%;">部门</th>
+								<th style="width: 10%;">职位</th>
+								<th style="width: 15%;">审批人</th>
+								<th style="width: 15%;">时间</th>
+								<th style="width: 10%;">历史记录</th>
+								<th style="width: 10%;">当前状态</th>
+								<th style="width: 30%;">意见</th>
+							</tr>
+
+							<tr th:each="process:${processList}">
+								<td><a th:href="'resumepage?id='+${process[resume_id]}"
+									th:text="${process[resumename]}">James</a></td>
+								<td th:text="${process[department]}">WEB</td>
+								<td th:text="${process[position]}">JAVA</td>
+								<td th:text="${process[sendername]}">LiMing</td>
+								<td
+									th:text="${process[create_time].getYear()+1900+'-'+(process[create_time].getMonth()+1)+'-'+ process[create_time].getDate()+' '
+										+  process[create_time].getHours()+':'+process[create_time].getMinutes()}">2015-08-11
+									20:12</td>
+								<td><a
+									th:href="'resumeflow?resume_id='+${process[resume_id]}+'&amp;'+'flow_id='+${process[flow_id]}">查看</a></td>
+								<td th:switch="${process.state*2+process.dealt}">
+								
+									<span th:case="10">简历待评估</span> 
+									<span th:case="11">简历评估已通过</span>
+									<span th:case="16">简历待定中 </span> 
+									<span th:case="17">简历评估已通过</span>
+									 <span th:case="20"> 待安排面试</span>
+									  <span th:case="21"> 已安排面试</span>
+									   <span th:case="30"> 简历评估未通过</span>
+									   
+									     <span th:case="40"> 面试中</span>
+									     <span th:case="41"> 面试已结束</span>
+									     <span th:case="50"> 待发放入职通知</span>
+									     <span th:case="51"> 已发放入职通知</span>
+									     <span th:case="60"> 面试失败</span>
+									     
+									     <span th:case="62"> 拒绝入职</span>
+									     <span th:case="64"> 待入职</span>
+									     <span th:case="66"> 已入职</span>
+									    
+								</td>
+								<td th:switch="${process.state*2+process.dealt}">
+								
+									<span th:case="10">
+<!-- 									<span class="tit" >通过</span> -->
+									
+										<span th:replace="fragments/button :: accept(${process.process_id}, ${process.flow_id})"></span> 
+										<span th:replace="fragments/button :: undet(${process.process_id})"></span> <span
+									th:replace="fragments/button :: reject(${process.process_id})"></span>
+									</span> 
+									<span th:case="11">简历评估已通过</span>
+									<span th:case="16">
+										<span th:replace="fragments/button :: accept(${process.process_id}, ${process.flow_id})"></span>
+										<span th:replace="fragments/button :: reject(${process.process_id})"></span>
+									</span> 
+									<span th:case="17">简历评估已通过</span>
+									 <span th:case="20">
+									 	<a th:onclick="'location.href=\'/interview/create?flow_id=' +${process.flow_id}+ '\';'" href="#">
+									 		创建面试
+									 	</a>
+									 
+									 </span>
+
+									  <span th:case="21"> 
+									 	<a th:onclick="'location.href=\'/interview/create?flow_id=' +${process.flow_id}+ '\';'" href="#">
+									 		创建面试
+									 	</a>
+											<a th:onclick="'openLittle(' + ${process.flow_id} + ');'">结束</a></span>
+									   <span th:case="30"> 简历评估未通过</span>
+									   
+									     <span th:case="40"> 
+									     	<a th:onclick="'location.href=\'/interview/create?flow_id=' +${process.flow_id}+ '\';'" href="#">
+									 			创建面试
+									 		</a> 
+											<a th:onclick="'openLittle(' + ${process.flow_id} + ');'" href="#">结束</a></span>
+									     <span th:case="41">
+									     	<a th:onclick="'location.href=\'/interview/create?flow_id=' +${process.flow_id}+ '\';'" href="#">
+									 			创建面试
+									 		</a> 
+								 			<a th:onclick="'openLittle(' + ${process.flow_id} + ');'" href="#">结束</a></span>
+									     <span th:case="50"> </span>
+									     <span th:case="51"> 已发放入职通知</span>
+									     <span th:case="60"> 面试失败</span>
+									     <span th:case="62"> 拒绝入职</span>
+									     <span th:case="64">  </span>
+									     <span th:case="66"> 已入职</span>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				<div th:replace="fragments/pages :: pages"></div>
+			</div>
+
+
+
+		</div>
+	</div>
+
+	
+	<object th:include="fragments/button :: modal" th:remove="tag"></object>
+	<script>
+	
+	 
+	 
+	 
+		var start = {
+			elem : '#start',
+			format : 'YYYY-MM-DD',
+			// 			min : laydate.now(), //设定最小日期为当前日期
+			max : laydate.now(),//最大日期
+			istoday : false,
+			choose : function(datas) {
+				end.min = datas; //开始日选好后，重置结束日的最小日期
+				end.start = datas //将结束日的初始值设定为开始日
+			}
+		};
+		var end = {
+			elem : '#end',
+			format : 'YYYY-MM-DD',
+			// 			min : laydate.now(),
+			max : laydate.now(),
+			istoday : false,
+			choose : function(datas) {
+				start.max = datas; //结束日选好后，重置开始日的最大日期
+			}
+		};
+		laydate(start);
+		laydate(end);
+	</script>
+
+</body>
+</html>

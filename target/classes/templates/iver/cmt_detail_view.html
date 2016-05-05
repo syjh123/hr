@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf8" />
+<meta name="author" content="zhou.jinyu" />
+<object th:include="fragments/navbar :: head"></object>
+<link href="/css/hr.css" rel="stylesheet" />
+<link href="/css/iver.css" rel="stylesheet" />
+<link href="/css/iver.css" rel="stylesheet" />
+<script type="text/javascript" src="/js/raty/jquery.raty.js"></script>
+<script type="text/javascript" src="/js/resumeRelated.js"></script>
+<script>
+	$(document).ready(function() {
+		
+		$(".raty-bar").raty({
+			halfShow:true,
+			half:true,
+			target: undefined,
+			score:function(){
+				return $(this).next().val();
+			},
+			click:function(score,evt) {
+				$(this).next().val(score);
+			},
+			path:'/js/raty/images/',
+		});
+		
+		$("#cmt_commit").click(function() {
+			
+			var score_data = {};
+			$.each($("li input.editing"), function(key, val) {
+				var item_id = $(val).attr("name").split(":")[1];
+				var score = $(val).val();
+				console.log("item id " + item_id + " get " + score);
+				score_data[item_id] = score;
+			})
+			console.log(score_data);
+			var pass = $("input:radio:checked").val();
+			if (pass == null) {
+				alert("请选择一个通过结果");
+				return;
+			}
+			toggle_edit($("body"));
+			var final_comment = $("textarea").val();
+			var iv_id = $("#iv_id").val();
+			upload_cmt(score_data, pass, final_comment, iv_id);
+			
+		});
+		
+		
+		$("#uplod_iv_file").click(function () {
+			
+			upload_iv_file();
+			
+		});
+	})
+	
+	function upload_iv_file() {
+		
+		var xhr = new XMLHttpRequest();
+		xhr.open('POST','/iver/upload_iv_record',true);
+		var formData = new FormData();
+		
+		var file = $("#file").get(0);
+		
+		if(file.value == null || file.value == ""){
+			alert("选择要上传的文件");
+			
+			return;
+		}
+		toggle_edit($("body"));
+		
+		var filename = GetExtensionFileName($("#file").get(0).value);
+		formData.append('file',$("#file").get(0).files[0]);
+		formData.append('iv_id', $("#iv_id").val());
+
+		xhr.send(formData);
+		xhr.onreadystatechange = function(){
+			toggle_edit($("body"));
+			if (xhr.readyState === 4)
+			{
+				var resp=xhr.responseText;
+				resp = JSON.parse(resp);
+				
+				if(resp.info=="success") {
+					warninghide("success",0,1000);
+				} else {
+					warninghide(resp.info,1,1000);
+				}
+			}
+	　　     };	    
+	}
+	function upload_cmt(scores, pass, cmt, iv_id) {
+		var data = {
+			scores : JSON.stringify(scores),
+			pass : pass,
+			comment : cmt,
+			iv_id : iv_id
+		};
+		var callback = function(json) {
+			toggle_edit($("body"));
+			if(json.info=="success") {
+				warninghide("success",0,1000);
+			} else {
+				warninghide("failed",1,1000);
+			}
+		}
+
+		doAjax("/iver/upload_cmt",data,callback,callback);
+	}
+	
+</script>
+<style>
+.row {
+	margin-top: 10px;
+	border: 0px solid green;
+}
+
+li input {
+	width: 48px;
+	margin-left: 12px;
+}
+</style>
+</head>
+
+<body>
+	<div class="alert alert-danger" id="msg" role="alert">...</div>
+	<h3>个人评价</h3>
+	<input name="iv_id" th:value="${iv_id}" type="hidden" />
+	<div class="row">
+		<div class="col-xs-4">
+			<ul class="list-group">
+				<li th:each="item : ${items}" class="list-group-item"><span
+					th:text="${item.item_desc}"></span> 
+					<div class="raty-bar"></div>
+					<input type="hidden" 
+					th:name="'item:'+${item.item_id}" th:value="${item.score}"
+					width="2" class="editing" /></li>
+
+			</ul>
+		</div>
+
+		<div class="col-xs-5"></div>
+		<div class="col-xs-2">
+			<a th:href="@{'/iver/submitfinalresult?iv_id='+${iv_id}}">提交面试最终结果</a><br />
+		</div>
+		<div class="col-xs-1">
+			<a th:href="@{/scoreItems/edit}">评分项管理</a>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-1">
+			<label class="radio-inline editing"> <input type="radio"
+				class="editing" name="pass" th:checked="${pass}==1?'true':'false'"
+				value="true" /> 通过
+			</label>
+		</div>
+		<div class="col-xs-1">
+			<label class="radio-inline editing"> <input type="radio"
+				class="editing" name="pass" value="false"
+				th:checked="${pass}==0?'true':'false'" /> 不通过
+			</label>
+		</div>
+		<div class="col-xs-6"></div>
+		<div class="col-xs-2">
+			<input type="file" id="file" class="btn editing"/>
+		</div>
+		<div class="col-xs-2">
+			<button class="btn btn-default editing" id="uplod_iv_file" >上传文件</button>
+		</div>
+
+	</div>
+
+	<div class="row">
+		<div class="col-xs-12">
+			<textarea class="form-control editing" rows="8" th:text="${comment}"></textarea>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-xs-2">
+			<button class="btn btn-success editing" id="cmt_commit">提交</button>
+		</div>
+	</div>
+
+</body>
+</html>

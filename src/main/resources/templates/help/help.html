@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta name="author" content="dong.yufei" />
+<meta charset="utf-8" />
+<object th:include="fragments/navbar :: head" th:remove="tag"></object>
+<object th:replace="fragments/button :: script" th:remove="tag"></object>
+<script>
+	function createInterview(interviewId) {
+		window.location = "/interview/edit?interview_id=" + interviewId;
+		$('button').attr('disabled', "true");
+		setTimeout(function() {
+			$('button').removeAttr("disabled");//把按钮id为submit的按钮启用
+		}, 5000);
+	}
+</script>
+<style>
+	p{
+		font-size: 12px;
+	}
+</style>
+</head>
+
+<body>
+	<div th:replace="fragments/navbar :: navbar"></div>
+	<div class="alert alert-danger" id="msg" role="alert">...</div>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-2">
+				<table class="table table-bordered">
+					<tr>
+						<td>
+							<ul class="nav">
+								<li><b>帮助</b></li>
+								<li><a th:class="${page==0}?active" href="/interview/help?page=0">HR功能介绍</a></li>
+								<li><a th:class="${page==1}?active" href="/interview/help?page=1">Leader功能介绍</a></li>
+								<li><a th:class="${page==2}?active" href="/interview/help?page=2">面试官功能介绍</a></li>
+								<li><a th:class="${page==3}?active" href="/interview/help?page=3">用户权限</a></li>
+							</ul>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class="col-md-10">
+			<table class="table table-bordered" >
+			<tr>
+			<td>
+			
+				<div th:if="${page==0}">
+				
+				
+				<p>如果你要导入一份简历进入简历库，请点击 <a href="/resume?leftnav=0" >  这里 </a></p>
+					
+					<p>如果你要进入简历库查找，编辑，下载简历，请点击 <a href="/hr?leftnav=2"> 这里 </a> </p>
+					<p>如果你要给部门推荐简历，请点击<a href="/hr?leftnav=1">这里</a></p>
+					<p>如果你要查看各个候选人的招聘进程，请点击<a href="/interview/hrflowlist?leftnav=3&amp;state=5">这里</a></p>
+					<p>如果你查看，下载报表，请点击<a href="/report?leftnav=103">这里</a></p>
+					<p>如果你要新加，修改需求，职位，渠道相关信息，请点击<a href="/functionpage?leftnav=102">这里</a></p>
+					<p>如果你要设置用户角色，请点击<a href="http://gum.game.line-alpha.me/users">这里</a></p>
+					<p>如果你要设置用户部门管理，请点击<a href="/interview/department">这里</a></p>
+				</div>
+				<div th:if="${page==1}">
+					<p>Leader可以同意或拒绝HR推送来的简历，同意后可以给该简历创建面试，选择面试官。</p>
+				</div>
+				<div th:if="${page==2}">
+					<p>所有用户都有可能是面试官。面试官可以查看自己即将参加的面试详情，对面试给出评价。</p>
+				</div>
+				<div th:if="${page==3}">
+					<p>用户权限由角色和部门管理。角色有Leader和Hr两种，一个用户有可能同时有两种角色，这些角色在GUM系统中管理，已经是HR或者Leader的用户可以给其他用户设置这些角色。</p>
+					<p>HR和Leader可以在部门管理页面管理部门。</p>
+					<p>HR拥有很多HR功能的权限，Leader拥有很多对自己部门的功能的权限。</p>
+				</div>
+				</td>
+				</tr>
+			</table>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

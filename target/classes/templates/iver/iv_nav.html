@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf8" />
+<meta name="author" content="zhou.jinyu" />
+<object th:include="fragments/navbar :: head"></object>
+<link href="/css/hr.css" rel="stylesheet" />
+<link href="/css/iver.css" rel="stylesheet" />
+<style>
+li {
+	cursor: pointer;
+	color: #43b945;
+}
+
+.mouseIn {
+	
+}
+</style>
+<script>
+	$(document).ready(function() {
+
+		var list_item = $(".nav li");
+
+		list_item.click(function() {
+
+			var type = $(this).attr("id").split(":")[1];
+			load_ivlist(type);
+
+			list_item.children().css("font-weight", 10);
+			$(this).children().css("font-weight", 20);
+
+		});
+		list_item.mouseover(function() {
+			if ($(this).hasClass("background-color") == false)
+				$(this).addClass("mouseIn");
+		});
+		list_item.mouseout(function() {
+			$(this).removeClass("mouseIn");
+		});
+	});
+
+	function load_ivlist(type) {
+		var iv_content = $("#iv_content");
+		iv_content.load("/iver/ivlist?type=" + type);
+	}
+</script>
+
+</head>
+
+<body>
+
+
+
+
+	<ul class="nav">
+		<li id="type:3"><a href="#">计划 <span class="badge" style="float:right" th:text="${waiting_count}">0</span></a></li>
+
+		<li id="type:2"><a href="#">未评价 <span class="badge" style="float:right" th:text="${uncomment_count}">0</span></a></li>
+		<li id="type:1"><a href="#">通过</a></li>
+		<li id="type:0"><a href="#">未通过</a></li>
+	</ul>
+
+
+	<!-- <ul class="list-group left-nav">
+		<li class="list-group-item background-color" id="type:3">计划<span
+			class="badge" th:text="${waiting_count}">0</span></li>
+
+		<li class="list-group-item" id="type:2"
+			onclick="$('#iv_content').load('/iver/ivlist?type=2')">未评价<span
+			class="badge" th:text="${uncomment_count}">0</span></li>
+		<li class="list-group-item" id="type:1">通过</li>
+		<li class="list-group-item" id="type:0">未通过</li>
+	</ul>
+ -->
+</body>
+</html>

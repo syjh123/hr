@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf8" />
+<meta name="author" content="zhou.jinyu" />
+<object th:include="fragments/navbar :: head"></object>
+<script src="/js/iv_his.js" />
+
+<style type="text/css">
+.bd {
+	border: 1px solid red;
+}
+
+.table>tbody>tr>td {
+	vertical-align: middle;
+}
+
+.font-accept {
+	color: green;
+}
+
+.font-reject {
+	color: red;
+}
+</style>
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#his_list_container").load("/iver/hislist?iv_id=1");
+})
+</script>
+
+</head>
+
+<body>
+	<div th:replace="fragments/navbar :: navbar"></div>
+	<div class="container" >
+		<div class="row">
+			<div class="col-cs-12" id="his_list_container"></div>
+		</div>
+	</div>
+</body>
+</html>

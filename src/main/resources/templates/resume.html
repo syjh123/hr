@@ -1,0 +1,248 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+<!--*@ 李松峰  lisongfeng7788@gmail.com/li.songfeng@navercorp.com  -->
+
+<title>简历页面</title>
+
+<link href="/webjars/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" media="screen" />
+
+<link href="/css/common.css" rel="stylesheet" type="text/css" />
+<link href="/css/rdnew_2.css" rel="stylesheet" type="text/css" />
+<link href="/css/rdnewlayer.css" rel="stylesheet" type="text/css" />
+
+
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="/js/html5shiv.min.js"></script>
+      <script src="/js/respond.min.js"></script>
+    <![endif]-->
+
+<script src="/webjars/jquery/1.11.3/jquery.min.js"></script>
+<script src="/webjars/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<style media="print">
+.resume-preview {
+	color: #000;
+}
+
+.resume-body-left {
+	width: auto;
+}
+
+.resume-preview-left {
+	box-shadow: none;
+	border: none;
+}
+
+h3 {
+	border-bottom: 2px solid #ccc;
+}
+
+.resume_fonts {
+	font-size: 20px;
+	font-family: "Microsoft YaHei";
+}
+</style>
+<title>简历主页</title>
+</head>
+<body>
+
+	<div th:replace="fragments/navbar :: navbar"></div>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<h1></h1>
+			</div>
+		</div>
+	</div>
+	<br />
+	<br />
+	<br />
+	<div class="container">
+		<div class="row">
+			<div class="col-md-10 col-md-offset-1">
+				<div class="col-md-3">
+					<a class="btn btn-default resume_fonts" th:href="@{/editresume(id=${id})}">编辑简历</a> <a class="btn btn-default resume_fonts"
+						th:href="@{/resumedownload(id=${id})}">详细简历下载</a>
+				</div>
+				<div class="col-md-2  col-md-offset-7">
+					<button class="btn btn-default" th:onclick="'location.href=\'' + @{'/resumeflow?resume_id=' + ${id}} + '\''">流程查看</button>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-10 col-md-offset-1">
+				<br />
+				<div id="resumeDetail">
+					<div class="resume-preview-main">
+						<div class="resume-preview-left">
+							<div class="resume-preview-main-title">
+								<div class="row">
+									<div class="col-md-3">
+										id:
+										<td type="text" name="id" id="id" th:text="${id}" readonly="readonly" />
+									</div>
+									<div class="col-md-3">
+										姓名：
+										<td id="name" name="name" th:text="${resume.name}" readonly="readonly" />
+									</div>
+									<div class="col-md-3">
+										手机 ：
+										<td id="phone" type="text" name="phone" th:text="${resume.phone}" placeholder="输入电话" />
+									</div>
+									<div class="col-md-3">
+										简历编号:
+										<td id="sn" th:text="${resume.sn}"></td>
+									</div>
+								</div>
+							</div>
+							<br />
+							<div class="resume-preview-all">
+								<h3 class="fc6699cc">个人简介</h3>
+								<div class="row">
+									<div class="col-md-12">
+										<div class="resume-preview-dl">
+											<div class="summary-bottom">
+												<div class="row">
+													<div class="col-md-3">
+														E-mail：<b id="sn" th:text="${resume.email}"></b>
+													</div>
+													<div class="col-md-3">
+														推荐渠道：
+														<td id="channel_id" name="channel_id" th:text="${channel}"></td>
+													</div>
+													<div class="col-md-3">
+														推荐岗位:
+														<td id="position" name="position" th:text="${position}">**岗位</td>
+													</div>
+													<div class="col-md-3">
+														毕业院校：
+														<td id="school_name" type="text" name="school_name" th:text="${resume.school_name}"></td>
+													</div>
+												</div>
+												<div class="row">
+													<div class="col-md-3">
+														工作年限：
+														<td id="experience" type="text" name="experience" th:text="${resume.experience}"></td>
+													</div>
+													<div class="col-md-3">
+														是否bat:
+														<td id="is_bat" name="is_bat" th:text="${resume.is_bat}? '是' : '否'">**bat</td>
+													</div>
+													<div class="col-md-3">
+														性别:
+
+														<td id="sex" name="sex" th:text="${resume.sex}? '男' : '女'"></td>
+													</div>
+													<div class="col-md-3">
+														专业:
+														<td id="major" name="degree" th:text="${resume.major}"></td>
+													</div>
+
+												</div>
+												<div class="row">
+													<div class="col-md-3">
+														学历:
+														<td id="degree" name="degree" th:text="${resume.degree}"></td>
+													</div>
+													<div class="col-md-3">
+														意向部门:
+														<td id="degree" name="degree" th:text="${department}"></td>
+													</div>
+													<div class="col-md-3">
+														年龄:
+														<td id="degree" name="degree" th:text="${resume.age}"></td>
+													</div>
+													<div class="col-md-3">
+														其他信息：
+														<td id="back_info" neme="back_info" type="text" name="resumeback_info" th:text="${resume.back_info}"></td>
+													</div>
+
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="resume-preview-all">
+								<h3 class="fc6699cc">工作经历</h3>
+								<div class="row">
+									<div class="col-md-12">
+										<pre id="work_experience" name="work_experience" type="text" th:text="${resume.work_experience}"></pre>
+									</div>
+								</div>
+							</div>
+
+							<div class="resume-preview-all">
+
+								<h3 class="fc6699cc">项目经历</h3>
+								<div class="row">
+									<div class="col-md-12">
+										<pre id="project_experience" name="project_experience" type="text" th:text="${resume.project_experience}"></pre>
+									</div>
+								</div>
+							</div>
+
+							<div class="resume-preview-all">
+								<h3 class="fc6699cc">教育经历</h3>
+								<div class="row">
+									<div class="col-md-12">
+										<pre id="edu_experience" name="edu_experience" type="text" th:text="${resume.edu_experience}"></pre>
+									</div>
+								</div>
+							</div>
+							<div class="resume-preview-all">
+								<h3 class="fc6699cc">培训经历</h3>
+								<div class="row">
+									<div class="col-md-12">
+										<pre id="train_experience" type="text" th:text="${resume.train_experience}"></pre>
+									</div>
+								</div>
+							</div>
+							<div class="resume-preview-all">
+								<h3 class="fc6699cc">语言能力</h3>
+								英语水平：
+								<td id="english_level" name="english_level" th:text="${englishlevel}"></td> 日语水平:
+								<td id="japanese_level" name="japanese_level" th:text="${japaneselevel}"></td> 韩语水平:
+								<td id="korean_level" name="korean_level" th:text="${koreanlevel}"></td>
+							</div>
+
+							<div class="resume-preview-all">
+								<h3 class="fc6699cc">专业技能</h3>
+								<div class="row">
+									<div class="col-md-12">
+										<pre id="professional_skills" type="text" th:text="${resume.professional_skills}"></pre>
+									</div>
+								</div>
+							</div>
+							<div class="resume-preview-all">
+								<h3 class="fc6699cc">备注信息</h3>
+								<div class="row">
+									<div class="col-md-12">
+										<pre id="resume_info" name="resume_info" type="text" th:text="${resume.resume_info}"></pre>
+									</div>
+								</div>
+							</div>
+							<div class="resume-preview-all">
+								<h3 class="fc6699cc">附件列表</h3>
+								<table class="table" id="resumeAttBox">
+									<tr th:each="attatchFile : ${attatchfiles}">
+										<td th:text="${attatchFile.file_path}">Onions</td>
+										<td><a th:href="@{/resumeAttdownload(file=${attatchFile.file_path})}">下载</a></td>
+									</tr>
+								</table>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

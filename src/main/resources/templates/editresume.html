@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+<!--*@ 李松峰  lisongfeng7788@gmail.com/li.songfeng@navercorp.com  -->
+
+<title>增加简历</title>
+<link href="/webjars/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" media="screen" />
+<link href="/css/common.css" rel="stylesheet" type="text/css" />
+<link href="/css/rdnew_2.css" rel="stylesheet" type="text/css" />
+<link href="/css/rdnewlayer.css" rel="stylesheet" type="text/css" />
+<link href="/css/resumeRelated.css" rel="stylesheet" type="text/css" />
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="/js/html5shiv.min.js"></script>
+      <script src="/js/respond.min.js"></script>
+    <![endif]-->
+
+<script src="/webjars/jquery/1.11.3/jquery.min.js"></script>
+<script src="/webjars/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/js/resumeRelated.js"></script>
+<script type="text/javascript" src="/js/majorList.js"></script>
+<script type="text/javascript" src="/js/majorSelect.js"></script>
+<script type="text/javascript" src="/js/chinaUniversityList.js"></script>
+<script type="text/javascript" src="/js/chinaUniversitySelect.js"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("input").focus(function(){
+			removeAttention($(this));
+		})
+		$("textarea").bind("input",wordlistener);
+	})
+	function removeAttention(tar) {
+		tar.css("border","0px");
+	}
+	function wordlistener() {
+		var tar = $(this);
+		var t_len = tar.val().length;
+		var wc = tar.next().children(".wordcount");
+		wc.html(t_len);
+		if(t_len>1024) {
+			wc.addClass("word-attention");
+		} else if(wc.hasClass("word-attention")){
+			wc.removeClass("word-attention");
+		}
+	}
+</script>
+
+<style media="print">
+.resume-preview {
+	color: #000;
+}
+
+.resume-body-left {
+	width: auto;
+}
+
+.resume-preview-left {
+	box-shadow: none;
+	border: none;
+}
+
+h3 {
+	border-bottom: 2px solid #ccc;
+}
+
+h3 {
+	background-color: #EDF6FB;
+	color: #315AAA;
+	font-weight: bold;
+	height: 32px;
+	line-height: 32px;
+	padding: 0 20px;
+	font-size: 14px;
+	margin-bottom: 10px;
+	font-family: "Microsoft YaHei";
+}
+
+.resume_fonts {
+	font-size: 20px;
+	font-family: "Microsoft YaHei";
+}
+
+.btn-default {
+	font-family: "Microsoft YaHei";
+}
+
+.input_class {
+	font-family: "Microsoft YaHei";
+	font-size: 20px;
+}
+</style>
+<title>编辑简历</title>
+<script th:inline="javascript">
+	/*<![CDATA[*/
+	var url = "/getResume";
+	var id = /*[[${id}]]*/
+	//	alert(id);
+	$("#id").val(id);
+	$.ajax({
+		type : "POST",
+		url : url,
+		data : {
+			id : id
+		},
+		success : fillin
+	});
+	function fillin(data) {
+		console.log(data);
+		fillinResume(data["resume"]);
+		fillinAttach(data["attatch"]);
+
+	}
+	function fillinAttach(data) {
+		$("#resumeAttBox").empty();
+		for (i = 0; data.length > i; i++) {
+			var id = data[i]["id"];
+			var resume_id = data[i]["resume_id"];
+			var file_path = data[i]["file_path"];
+			var tr = $("<tr></tr>");
+			tr.attr("id", "attatch" + data[i]["id"]);
+			var name = $("<td></td>");
+			name.append(file_path);
+
+			tr.append(name);
+
+			var resumeLine = $("<td></td>");
+
+			var resumename = $("<a></a>");
+			resumename.append("下载 ");
+			resumename.attr("href", "/resumeAttdownload?file=" + file_path);
+			resumeLine.append(resumename);
+			tr.append(resumeLine);
+
+			var filedele = $("<td></td>");
+			var del = $("<a></a>");
+			del.append("删除");
+			del.attr("onclick", "deleteAttach(" + id + ")");
+			filedele.append(del);
+			tr.append(filedele);
+			$("#resumeAttBox").append(tr);
+		}
+	}
+
+	function deleteAttach(data) {
+		if (!confirm("sure to delete")) {
+			return;
+		}
+		var url = "/resumeAttdelete"
+		parms = {
+			id : data
+		}
+		$.ajax({
+			type : "POST",
+			url : url,
+			data : parms,
+			success : function deletecol() {
+				$("#attatch" + data).remove();
+				alert("delete attatch success");
+			}
+		});
+	}
+	/*]]>*/
+</script>
+<style>
+body {
+	padding-top: 50px;
+}
+
+.word-box{
+	float:right;
+	width:auto;
+}
+.wordcount {
+	color:black;
+}
+.word-attention{
+	color:red;
+}
+textarea{
+	resize:none;
+	overflow:auto;
+	height:auto !important;
+	min-height:210px !important;
+}
+</style>
+</head>
+
+<body>
+	<div th:replace="fragments/navbar :: navbar"></div>
+	<div class="container"></div>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-10 col-md-offset-1">
+				<div class="row">
+					<form id="myform" method="POST" enctype="multipart/form-data" action="/upload">
+						<div class="col-md-12">
+							<h1 class="resume_fonts">导入简历</h1>
+						</div>
+						<div class="col-md-4">
+							<label>选择要解析的文件</label> <input class="btn btn-default" id="file" type="file" name="file" onchange="getFileName('t',this.form.file);" />
+
+						</div>
+					</form>
+
+					<div class="col-md-2 ">
+						<button class="btn btn-default" onclick="submitfile()" style="height: 35px; margin-top: 20px;" value="Upload">解析简历</button>
+					</div>
+					<div class="col-md-2 ">
+						<button class="btn btn-default" onclick="submitResume()" style="height: 35px; margin-top: 20px; margin-left: -40px;" value="Upload">提交简历</button>
+					</div>
+				</div>
+				<div class="row">
+
+
+					<div class="col-md-4">
+						<label>选择简历文件</label> <input class="btn btn-default" id="file2" type="file" name="attachmentfile" /><br />
+					</div>
+					<div class="col-md-2">
+						<button class="btn btn-default" onclick="submitAnotherResume()" style="height: 35px; margin-top: 20px;">提交简历文件</button>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-4">
+						<label>选择其他附件</label> <input class="btn btn-default" id="attachmentfile" type="file" name="attachmentfile" multiple="multiple" /><br />
+					</div>
+
+					<div class="col-md-2">
+						<button class="btn btn-default" onclick="submitattachmentfile()" style="height: 35px; margin-top: 20px;">提交附件</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<!-- <div class="col-md-2">  老版本的按钮排版
+					<input class="form-control" id="file2" type="file" name="attachmentfile" /><br />
+				</div>
+				<div class="col-md-1">
+					<button class="btn btn-default" onclick="submitAnotherResume()">提交简历</button>
+				</div>
+				<div class="col-md-2">
+					<input class="form-control" id="attachmentfile" type="file" name="attachmentfile" multiple="" /><br />
+				</div>
+
+				<div class="col-md-1">
+					<button class="btn btn-default" onclick="submitattachmentfile()">提交附件</button>
+				</div> -->
+
+
+		<!-- class="resume-preview clearfix" -->
+		<div class="row">
+			<form id="resumeform" method="POST" enctype="multipart/form-data">
+				<div class="row">
+					<div class="col-md-10 col-md-offset-1"></div>
+				</div>
+				<div class="col-md-10 col-md-offset-1">
+					<div id="resumeDetail">
+						<div class="resume-preview-main">
+							<div class="resume-preview-left">
+								<div class="row">
+									<input type="hidden" name="id" id="id" value="-1" readonly="readonly" />
+									<div class="col-md-3">
+										<label>姓名</label><input id="name" type="text" name="name" placeholder="输入姓名" class="form-control" />
+									</div>
+									<div class="col-md-3">
+										<label>手机 </label><input id="phone" type="text" name="phone" placeholder="输入电话" class="form-control" />
+									</div>
+									<div class="col-md-3">
+										<label>简历编号</label><input id="sn" type="text" name="sn" placeholder="简历编号" class="form-control" />
+									</div>
+
+								</div>
+								<br />
+								<div class="row">
+
+									<div class="resume-preview-all">
+										<h3 class="fc6699cc">简历</h3>
+										<div class="resume-preview-dl">
+											<div class="summary-bottom">
+												<div class="row">
+													<div class="col-md-3 form-group">
+														E-mail：<input id="email" type="text" name="email" class="form-control" placeholder="输入邮箱" />
+													</div>
+													<div class="col-md-3">
+														推荐渠道：<select id="channel_id" class="form-control" name="channel_id">
+															<option value="-1">选择渠道</option>
+															<option th:each="channel:${channels}" th:value="${channel.id}" th:text="${channel.name}"></option>
+														</select>
+													</div>
+													<div class="col-md-3">
+														推荐岗位:<select id="position" name="position" class="form-control">
+															<option th:each="position:${positions}" th:value="${position.id}" th:text="${position.name}"></option>
+														</select>
+													</div>
+													<div class="col-md-3">
+														<div>
+															毕业学校：<input value='' placeholder="点击选择学校" id='selectSchool' name="school_name" type='text' class="form-control" />
+															<div id="choose-box-wrapper-school">
+																<div id="choose-box">
+																	<div id="choose-box-title">
+																		<span>选择学校</span>
+																	</div>
+																	<p style="font-size: 12px; text-indent: 1em;">
+																		<span>搜索：</span><input id="searchSchool" type="text" value="搜索学校" />
+																	</p>
+																	<div id="choose-a-province"></div>
+																	<div id="choose-a-school"></div>
+																	<div id="choose-box-bottom">
+																		<input type="botton" id='close-school' value="关闭" />
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+												<div class="row">
+													<div class="col-md-3">
+														工作年限：<input id="experience" type="text" name="experience" placeholder="-1" class="form-control" />
+													</div>
+													<div class="col-md-3">
+														是否bat:<select id="is_bat" name="is_bat" class="form-control">
+															<option value="true">是</option>
+															<option value="false">否</option>
+														</select>
+													</div>
+													<div class="col-md-3">
+														性别:<select id="sex" name="sex" class="form-control">
+															<option value="true">男</option>
+															<option value="false">女</option>
+														</select>
+													</div>
+													<div class="col-md-3">
+														<div>
+															专业名称：<input value='' placeholder="点击选择专业" id='selectMajor' type='text' name="major" class="form-control" />
+															<div id="choose-box-wrapper">
+																<div id="choose-box">
+																	<div id="choose-box-title">
+																		<span>选择专业</span>
+																	</div>
+																	<p style="font-size: 12px; text-indent: 1em;">
+																		<span>搜索：</span><input id="searchMajor" type="text" value="搜索专业" />
+																	</p>
+																	<div id="choose-a-majorClass"></div>
+																	<div id="choose-a-major"></div>
+																	<div id="choose-box-bottom">
+																		<input type="botton" id='close' value="关闭" />
+																	</div>
+																</div>
+															</div>
+														</div>
+
+													</div>
+
+												</div>
+												<div class="row">
+													<div class="col-md-3">
+														学历:<select id="degree" name="degree" class="form-control">
+															<option value="高中">高中</option>
+															<option value="大专">大专</option>
+															<option value="本科">本科</option>
+															<option value="硕士">硕士</option>
+															<option value="博士">博士</option>
+														</select>
+													</div>
+													<div class="col-md-3">
+														意向部门：<select id="department_id" name="department_id" class="form-control">
+															<option value="-1">选择部门</option>
+															<option th:each="department:${departments}" th:value="${department.id}" th:text="${department.name}"></option>
+														</select>
+													</div>
+													<div class="col-md-3">
+														年龄：<input id="age" type="text" name="age" placeholder="输入年龄" class="form-control" />
+													</div>
+													<div class="col-md-3">
+														其他信息：<input id="back_info" neme="back_info" type="text" name="resumeback_info" placeholder="其他信息" class="form-control" />
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="resume-preview-all">
+										<h3 class="fc6699cc">工作经历</h3>
+										<div class="col-md-12">
+											<textarea id="work_experience" name="work_experience" class="form-control col-md-8 " rows="3" type="text"> </textarea>
+											<div class="word-box"><span class="wordcount">0</span><span>/1024</span></div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="resume-preview-all">
+										<h3 class="fc6699cc">项目经历</h3>
+										<div class="col-md-12">
+											<textarea id="project_experience" name="project_experience" class="form-control col-md-8 " rows="3" type="text"> </textarea>
+											<div class="word-box"><span class="wordcount">0</span><span>/1024</span></div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="resume-preview-all">
+										<h3 class="fc6699cc">教育经历</h3>
+										<div class="col-md-12">
+											<textarea id="edu_experience" name="edu_experience" class="form-control col-md-8 " rows="3" type="text"> </textarea>
+											<div class="word-box"><span class="wordcount">0</span><span>/1024</span></div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="resume-preview-all">
+										<h3 class="fc6699cc">培训经历</h3>
+										<div class="col-md-12">
+											<textarea id="train_experience" class="form-control col-md-8 " rows="3" name="train_experience" type="text"> </textarea>
+											<div class="word-box"><span class="wordcount">0</span><span>/1024</span></div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="resume-preview-all">
+										<h3 class="fc6699cc">语言能力</h3>
+										<div class="row">
+
+											<div class="col-md-1"></div>
+											<div class="col-md-3">
+												英语水平 <select id="english_level" name="textposition">
+
+													<option value="11">无</option>
+													<option th:each="lanLev:${englishlevel}" th:value="${lanLev.id}" th:text="${lanLev.level_type}"></option>
+												</select>
+											</div>
+											<div class="col-md-3">
+												日语水平 <select id="japanese_level" name="textposition">
+
+													<option value="11">无</option>
+													<option th:each="lanLev:${japaneselevel}" th:value="${lanLev.id}" th:text="${lanLev.level_type}"></option>
+												</select>
+											</div>
+											<div class="col-md-3">
+												韩语水平<select id="korean_level" name="textposition">
+													<option value="11">无</option>
+													<option th:each="lanLev:${koreanlevel}" th:value="${lanLev.id}" th:text="${lanLev.level_type}"></option>
+												</select>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="resume-preview-all">
+										<h3 class="fc6699cc">专业技能</h3>
+										<div class="col-md-12">
+											<textarea id="professional_skills" class="form-control col-md-8 " name="professional_skills" rows="3" type="text"> </textarea>
+											<div class="word-box"><span class="wordcount">0</span><span>/1024</span></div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="resume-preview-all">
+										<h3 class="fc6699cc">备注信息</h3>
+										<div class="col-md-12">
+											<textarea id="resume_info" name="resume_info" class="form-control col-md-8 " rows="3" type="text"> </textarea>
+											<div class="word-box"><span class="wordcount">0</span><span>/1024</span></div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="resume-preview-all">
+										<div class="col-md-12">
+											<h3 class="fc6699cc">附件列表</h3>
+											<table class="table" id="resumeAttBox" />
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</form>
+
+		</div>
+
+
+	</div>
+
+</body>
+
+</html>

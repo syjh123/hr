@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf8"/>
+<meta name="author" content="zhou.jinyu" />
+<object th:include="fragments/navbar :: head"></object>
+<link href="/css/hr.css" rel="stylesheet" />
+<script>
+	$(document).ready(function(){
+		$(".pagination li a").click(function(){
+			var url = $(this).attr("href");
+			console.log("goto "+url);
+			$("#iv_content").load(url);
+			return false;
+		})
+	})
+</script>
+</head>
+
+<body id="ivlist_body">
+	<h4>你需要参加的面试</h4>
+	<table class="table table-bordered">
+		<tr >
+			<th>候选人</th>
+			<th>面试时间</th>
+			<th>面试地点</th>
+			<th>时长</th>
+			<th>类型</th>
+		</tr>
+		<tr th:each="iv : ${ivs}">
+			<td><a th:href="@{/resumepage?id=}+${iv.resume_id}" th:text="${iv.name}"></a></td>
+			<td th:text="${iv[time]}"></td>
+			<td th:text="${iv[place]}"></td>
+			<td th:text="${iv[len]}"></td>
+			<td th:text="${iv[seq]}"></td>
+		</tr>
+		
+	</table>	
+</body>
+</html>

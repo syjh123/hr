@@ -1,0 +1,21 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<link href="/css/hr.css" rel="stylesheet" />
+<link href="/css/iver.css" rel="stylesheet" />
+</head>
+<nav style="float: right; margin-right: 0px" th:fragment="pages">
+	<ul class="pagination">
+		<li><a th:href="${pre_url}+'page='+${pre_page}"
+			aria-label="Previous"> <span aria-hidden="true">&laquo;</span>
+		</a></li>
+		<li th:each="page :${pages}" >
+		<a th:href="${pre_url}+'page='+${page.page}" th:text="${page.page}" 
+		th:class="${page.isCurrent}?'cur':''" target="_self"></a>
+		</li>
+
+		<li><a th:href="${pre_url}+'page='+${next_page}" aria-label="Next">
+				<span aria-hidden="true">&raquo;</span>
+		</a></li>
+	</ul>
+</nav>
+</html>

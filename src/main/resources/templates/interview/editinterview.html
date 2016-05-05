@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta name="author" content="dong.yufei" />
+<meta charset="utf-8" />
+<object th:include="fragments/navbar :: head" th:remove="tag"></object>
+<script src="/js/laydate.js"></script>
+<link href="/css/zTreeStyle.css" rel="stylesheet" />
+<script src="/js/ztree.js"></script>
+<style>
+</style>
+<script th:inline="javascript">
+	/*<![CDATA[*/
+	var interviewers = new Array();
+
+	var zTreeObj;
+	var setting = {
+		check : {
+			enable : true
+		},
+		data : {
+			simpleData : {
+				enable : true
+			}
+		},
+		callback : {
+			onCheck : onCheck
+		}
+	};
+	function onCheck(e, treeId, treeNode) {
+		updateCheck(treeNode);
+	}
+	function updateCheck(treeNode) {
+		console.log(treeNode);
+		var nodes = zTreeObj.getCheckedNodes(true);
+		var s = "";
+		interviewers = new Array();
+		for ( var i in nodes) {
+			if (!nodes[i].isParent) {
+				s += nodes[i].name + "<br/>";
+				interviewers.push(nodes[i].id - 100000);
+			}
+		}
+		$('#testp').html("<b>面试官： (" + interviewers.length + "):</b><br/>" + s);
+	}
+	var zNodes = new Array();
+	var users = /*[[${users}]]*/null;
+	var departs = /*[[${departs}]]*/null;
+	var inters = /*[[${inters}]]*/null;
+	var interSet = new Array();
+	for ( var i in inters) {
+		interSet.push(inters[i].user_id);
+	}
+	for ( var i in departs) {
+		//console.log(departs[i]);
+		var param = {
+			id : departs[i].id,
+			isParent : true,
+			name : departs[i].name
+		};
+		console.log(param);
+		zNodes.push(param);
+	}
+	console.log(inters);
+	console.log(interSet);
+	for ( var i in users) {
+		var checked = false;
+		if ($.inArray(users[i].id, interSet) != -1)
+			checked = true;
+		var param = {
+			id : 100000 + users[i].id,
+			pId : users[i].department_id,
+			name : users[i].username + ' ' + users[i].nickname,
+			checked : checked
+		};
+		console.log(param);
+		zNodes.push(param);
+	}
+
+	$(document).ready(function() {
+		zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, zNodes);
+	});
+
+	function accept(thisform) {
+		$('button').attr('disabled', "true");
+		setTimeout(function() {
+			$('button').removeAttr("disabled");//把按钮id为submit的按钮启用
+		}, 2000);
+		$.ajax({
+			url : "/interview/ajax_editinterview",
+			data : {
+				needContact : thisform.need_contact.checked,
+				interviewId : thisform.interview_id.value,
+				interviewType : thisform.interview_type.value,
+				startTimeString : thisform.starttime.value,
+				durationString : thisform.duration.value,
+				place : thisform.place.value,
+				information : thisform.information.value,
+				interviewersString : JSON.stringify(interviewers)
+			},
+			type : "POST",
+			dataType : "json",
+			success : function(json) {
+				$('button').removeAttr("disabled");
+				with (json) {
+					if (ok) {
+						warning(msg, 0);
+						location.href = "/interview/hrpage";
+					} else
+						warning(msg, 1);
+				}
+			},
+			error : function(xhr, status, errorThrown) {
+				warning('post error , please retry', 1);
+				$('button').removeAttr("disabled");
+			}
+		});
+		return false;
+	}
+
+	function onload() {
+		updateCheck();
+		var s = "";
+		var cnt = 0;
+		for ( var i in users) {
+			if ($.inArray(users[i].id, interSet) != -1) {
+				cnt++;
+				s += users[i].nickname + "<br/>";
+			}
+		}
+		$('#interviewer-before').html("原先指定的面试官 (" + cnt + "):<br/>" + s + '');
+		var interviewType = /*[[${interview.type}]]*/'0';
+		//$('#interview_type').val(interviewType);
+	}
+	/*]]>*/
+</script>
+</head>
+
+<body onload="onload()">
+	<div th:replace="fragments/navbar :: navbar"></div>
+	<div class="alert alert-danger" id="msg" role="alert">...</div>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<h2>编辑面试</h2>
+				<h4 th:if="${interview}!=null">
+					<a th:href="'/iver/hislist?iv_id=' + ${interview.id}" th:text="'这份简历已经创建了 ' + ${interviewCnt} + '轮面试 (点击查看详情)'"></a>
+				</h4>
+				<h4 th:if="${interview}==null">这份简历还没有创建过面试。</h4>
+			</div>
+			<form onsubmit="return accept(this);" action="#" method="post">
+				<div class="col-md-4">
+					<input type="hidden" name="interview_id" th:value="${interview.id}" />
+					<table>
+						<tr>
+							<td><label for="starttime">面试开始时间</label></td>
+							<td><input class="laydate-icon" id="starttime" name="starttime" style="width: 200px; margin-right: 10px;"
+								placeholder="YYYY/MM/DD HH:MM:SS" th:value="${interview[start_time]!=null}?${#calendars.format(interview[start_time],'yyyy-MM-dd hh:mm:ss')}"></input></td>
+
+						</tr>
+						<tr>
+							<td><label for="duration">面试持续时间</label></td>
+							<td><input id="duration" name="duration" style="width: 200px; margin-right: 10px;" type="time" th:value="${interview.duration}"></input></td>
+						</tr>
+					</table>
+					<br />
+				</div>
+				<div class="col-md-8">
+					<table>
+						<tr>
+							<td><label for="place">面试地点</label></td>
+							<td><input id="place" name="place" style="width: 200px; margin-right: 10px;" type="text" placeholder="填写面试地点"
+								th:value="${interview.place}"></input></td>
+						</tr>
+						<tr>
+							<td><label for="place">面试类型</label></td>
+							<td><select id="interview_type" name="interview_type" style="width: 200px; margin-right: 10px;">
+									<option th:each="type:${Values.I_TYPE}" th:value="${type[id]}" th:text="${type[name]}" th:selected="${type[id]=='1'}?'selected'"></option>
+							</select></td>
+						</tr>
+					</table>
+				</div>
+				<div class="interview-block">
+					<div class="col-md-12">
+						<b>选择面试官</b>
+						<p>选择一些用户作为面试官，他们将有查看面试信息、对这场面试进行评价、打分的权限。</p>
+					</div>
+					<div class="col-md-6">
+						<ul id="treeDemo" class="ztree"></ul>
+						<br />
+					</div>
+					<div class="col-md-3">
+						<p id="testp"></p>
+					</div>
+					<div class="col-md-3">
+						<p id="interviewer-before"></p>
+					</div>
+				</div>
+				<div class="col-md-12">
+					<div class="form-group">
+						<label for="information">附加信息</label>
+						<textarea class="form-control" id="information" name="information" rows="3"></textarea>
+					</div>
+					<div style="margin-bottom: 10px;">
+						<div class="checkbox">
+							<h3>
+								<label> <input type="checkbox" name="need_contact" /> 这场面试还未确定
+								</label>
+							</h3>
+						</div>
+						<p style="color: #EE0000;">如果还未确定下时间，请勾选该项。若不勾选，表明时间已确定，会邮件通知各个面试官。</p>
+					</div>
+					<button class="btn btn-success" type="submit">提交</button>
+					<input type="button" class="btn btn-default" onclick="location.href='/interview/hrpage';" value="取消" />
+				</div>
+			</form>
+		</div>
+	</div>
+	<script>
+		var start = {
+			elem : '#starttime',
+			format : 'YYYY-MM-DD hh:mm:ss',
+			min : laydate.now(), //设定最小日期为当前日期
+			istime : true,
+			istoday : false,
+			choose : function(datas) {
+			}
+		};
+		laydate(start);
+	</script>
+</body>
+</html>

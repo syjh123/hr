@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf8"/>
+<meta name="author" content="zhou.jinyu" />
+<object th:include="fragments/navbar :: head"></object>
+<link href="/css/hr.css" rel="stylesheet" />
+<link href="/css/iver.css" rel="stylesheet" />
+<script type="text/javascript" src="/js/raty/jquery.raty.js"></script>
+<script>
+	$(document).ready(function(){
+		$(".iv_raty").raty({
+			half:true,
+			readOnly:true,
+			path:"/js/raty/images/",
+			score:function(){
+				return $(this).attr("id");
+			},
+		});
+	});
+</script>
+</head>
+
+<body>
+	<div class="row">
+		<div class="col-xs-2"><h3>面试记录：</h3></div>
+		<div class="col-xs-8"></div>	
+		<div class="col-xs-2" style="margin-top:28px;"><a th:href="@{'/iver/hislist?iv_id='+${iv_id}}" style="float:left">更多Ta的面试</a>
+		
+		<a th:href="@{'/iver/my_cmt?iv_id='+${iv_id}}" style="float:right">我的评价</a></div>
+		
+	</div>
+	<table class="table table-bordered">
+		<tr >
+			<th>面试官</th>
+			<th>个人面试意见</th>
+			<th>分项量化评价</th>
+			<th style="width:20%;">综合评价</th>
+			<th >面试详情记录</th>
+		</tr>
+		<tr th:each="ivc : ${ivcs}" >
+			<td th:text="${ivc[iver_name]}" ></td>
+			<td th:text="${ivc[pass]}"></td>
+			<td >
+			<!--  面试评价星级评分条 -->
+				<table class="table ">
+					<tr th:each="sitem : ${ivc.items}">
+						<td th:text="${sitem.item_desc}"></td>
+						<td class="iv_raty" th:id="${sitem.score}"></td>
+					</tr>
+					
+				</table>
+				
+			</td>
+			<td th:text="${ivc[cmt_info]}" ></td>
+			<td ><a target="_blank" th:href="@{/iver/download_iv_record_file(iv_id=${ivc.iv_id},iver_id=${ivc.iver_id})}">详情查看</a></td>
+		</tr>
+	</table>
+</body>
+</html>

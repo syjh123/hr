@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<object th:include="fragments/navbar :: head"></object>
+<link href="/css/hr.css" rel="stylesheet" />
+
+<script src="/webjars/jquery/1.11.3/jquery.min.js"></script>
+
+<script th:inline="javascript">
+	/*<![CDATA[*/
+	function load() {		
+		var status = /*[[${status}]]*/
+		var statusbox = $("#" + status);
+		statusbox.css("font-weight", "bolder");		
+	}
+	/*]]>*/
+</script>
+
+<script>
+		function addPosition() {
+			var value = $("#submitPosition").val();			
+			if(value == null ||value == ""){
+				alert("输入岗位名称");
+				return;
+			}
+			
+			var positiondescp = $("#positiondescp").val();
+			
+			if(value.length >= 10){
+				alert("职位名称太长");
+				return;
+			}
+			var url = "/submitPosition";
+			
+			parms = {
+					position:value,
+					description:positiondescp
+			}
+//			$.post(url,asyncfalse,parms,submitFun);
+			$.ajax({
+				  type: 'POST',
+				  url: url,
+				  data: parms,
+				  success: submitFun,
+				  async:false
+			});
+		}
+
+		function submitFun(data){	
+			
+			var positionList = $("#positionList");
+			if(data["state"] != "success"){
+				return;
+			}
+
+			$("#positionList").empty();
+			for(i = 0; data.length > i; i++){
+				var dataJson = data["result"][i];
+				$('<option />',{
+			        value:dataJson.id,
+			        text:dataJson.name
+			    }).appendTo(positionList);
+			}
+			
+			var positionListdel = $("#positionListdel");
+			if(data["state"] != "success"){
+				return;
+			}
+
+			$("#positionListdel").empty();
+			for(i = 0; data.length > i; i++){
+				var dataJson = data["result"][i];
+				$('<option />',{
+			        value:dataJson.id,
+			        text:dataJson.name
+			    }).appendTo(positionListdel);
+			}
+		}
+		function deletePosition(){
+			var deleId = $("#positionListdel").val();
+			var url = "/deletePosition";
+				parms = {
+						id:deleId				
+			}
+			$.ajax({
+				  type: 'POST',
+				  url: url,
+				  data: parms,
+				  success: submitFun,
+				  async:false
+			});
+		}
+		function changefunc(){
+			var url = "/getPosition";
+			var value = $("#positionListcg").val();
+			parms ={
+				id:value	
+			}
+			$.ajax({
+				  type: 'POST',
+				  url: url,
+				  data: parms,
+				  success: setPositionBox,
+				  async:false
+			});			
+		}
+		
+		function setPositionBox(data){
+			console.log(data);
+			var position = data["position"];
+			$("#positionListNamecg").val(position["name"]);
+			$("#positionListDescpcg").val(position["description"]);
+		}
+		
+		function submitchange(){
+			var url="/updatePosition";
+			position={};
+			position["name"] =  $("#positionListNamecg").val();
+			position["description"] = $("#positionListDescpcg").val();
+// 			if(position["name"] == null ||position["name"] == ""){
+// 				alert("请输入岗位名称");
+// 				return;
+// 			}
+			
+			
+			var id = $("#positionListcg").val();
+			console.log(id);
+			position["id"] = id;
+			$.ajax({
+				  type: 'POST',
+				  url: url,
+				  data: position,
+				  success: refresh,
+				  async:false
+			});	
+		}
+		function refresh(){
+			window.location.reload();
+		}
+		
+</script>
+
+</head>
+
+<body onload="load()">
+	<div th:replace="fragments/navbar :: navbar(whosePage=hr)"></div>
+	<div class="container">
+		<div class="col-md-2">
+			<table class="table table-bordered">
+				<tr>
+					<td>
+						<ul class="nav">
+							<li id="position" role="presentation"><a
+								href="?status=position">职位相关</a></li>
+							<li id="demand" role="presentation"><a href="?status=demand">需求相关</a></li>
+							<li id="channel" role="presentation"><a
+								href="?status=channel">渠道相关</a></li>
+						</ul>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div class="col-md-2">
+
+			<table class="table table-striped">
+				<tr>
+					<th>职位名称：</th>
+				</tr>
+				<div id="positionList">
+					<tr th:each="position:${positions}">
+						<td th:value="${position.id}" th:text="${position.name}"></td>
+					</tr>
+				</div>
+
+			</table>
+		</div>
+		<div class="col-md-7">
+			<div class="row">
+
+				<form class="form">
+					<div class="row">
+						<div class="col-md-9 col-md-offset-0">
+							<div class="row">
+								<div class="col-md-3">
+									<h5 class="text-right ">要增加的岗位：</h5>
+								</div>
+								<div class="col-md-9">
+									<div class="form-group">
+										<input type="text" class="form-control" id="submitPosition"
+											placeholder="岗位名称" />
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-9 col-md-offset-0">
+							<div class="row">
+								<div class="col-md-12">
+									<label for="exampleInputEmail2">岗位信息</label>
+									<textarea class="form-control" rows="3" id="positiondescp"></textarea>
+								</div>
+							</div>
+						</div>
+					</div>
+					<br />
+					<div class="row">
+						<div class="col-md-9 col-md-offset-0">
+							<div class="col-md-12">
+								<div class="row">
+									<button type="submit" onclick="addPosition()"
+										class="btn btn-default btn-block">增加岗位</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</form>
+				<br /> <br /> <br />
+				<form class="form">
+					<div class="row">
+						<div class="col-md-9 col-md-offset-0">
+							<div class="row">
+								<div class="col-md-2">
+									<button class="btn btn-default">选择岗位</button>
+								</div>
+								<div class="col-md-10">
+									<select id="positionListdel" class="form-control"
+										name="textposition">
+										<option th:each="position:${positions}"
+											th:value="${position.id}" th:text="${position.name}"></option>
+									</select>
+								</div>
+							</div>
+						</div>
+					</div>
+					<br />
+					<div class="row">
+						<div class="col-md-9 col-md-offset-0">
+							<div class="row">
+								<div class="col-md-12">
+									<button type="submit" onclick="deletePosition()"
+										class="btn btn-default btn-block">删除岗位</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</form>
+				<br /> <br /> <br />
+				<form class="form">
+					<div class="row">
+						<div class="col-md-9 col-md-offset-0">
+							<div class="row">
+								<div class="col-md-3">
+									<button class="btn btn-default">修改岗位描述</button>
+								</div>
+								<div class="col-md-4">
+									<select id="positionListcg" class="form-control"
+										name="textposition" onchange="changefunc()">
+										<option th:each="position:${positions}"
+											th:value="${position.id}" th:text="${position.name}"></option>
+									</select>
+								</div>
+							
+							</div>
+						</div>
+					</div>
+					<br />
+					<div class="row">
+						<div class="col-md-9 col-md-offset-0">
+							<div class="row">
+								<div class="col-md-12">
+									<div class="form-group">
+										<label for="exampleInputEmail2">岗位描述</label>
+										<textarea class="form-control" rows="3"
+											id="positionListDescpcg"></textarea>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-md-9 col-md-offset-0">
+							<div class="row">
+								<div class="col-md-12">
+									<button type="submit" onclick="submitchange()"
+										class="btn btn-default btn-block">修改岗位描述</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</form>
+			</div>
+			<br /> <br /> <br />
+			<div class="row"></div>
+		</div>
+	</div>
+
+</body>
+</html>

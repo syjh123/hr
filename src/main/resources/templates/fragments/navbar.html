@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head th:fragment="head">
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+
+<title>Recruit System</title>
+<link href="/webjars/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" media="screen" />
+
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="/js/html5shiv.min.js"></script>
+      <script src="/js/respond.min.js"></script>
+    <![endif]-->
+
+<script src="/webjars/jquery/1.11.3/jquery.min.js"></script>
+<script src="/webjars/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="/js/hr.js"></script>
+<link href="/css/hr.css" rel="stylesheet" />
+<style>
+a.active {
+	font-weight: bold;
+}
+</style>
+
+</head>
+
+<body>
+	<nav class="navbar navbar-default navbar-fixed-top navbar-green" th:fragment="navbar">
+		<div class="container">
+
+			<div class="navbar-header">
+				<a class="navbar-brand" href="/">Recruit System</a>
+			</div>
+			<div id="navbar" class="navbar-collapse collapse">
+				<ul class="nav navbar-nav">
+					<li th:class="${whosePage=='hr'}?active" th:if="${isHr}"><a href="/">HR</a></li>
+					<li th:class="${whosePage=='leader'}?active" th:if="${isLeader}"><a href="/leaderindex">部门长</a></li>
+
+					<li><a href="/myinterview">我的面试</a></li>
+					<li><a href="/recommenderPage">我要推荐</a></li>
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					<li><a href="#" th:text=" ${departmentName}"></a></li>
+					<li><a href="#" th:text="${me.nickname}">n</a></li>
+					<li><a href="/logout"> <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
+
+					</a></li>
+				</ul>
+			</div>
+			<!--/.navbar-collapse -->
+		</div>
+	</nav>
+
+	<table class="table table-bordered" th:fragment="hrleftbar">
+		<tr>
+
+			<ul class="nav">
+				<li role="presentation" class="hide-menu-title"><span class="menu-title">简历管理</span></li>
+			</ul>
+			<ul class="nav hide-menu">
+				<li><a th:class="(${leftnav==0}?active:'')" href="/resume?leftnav=0">新增简历</a></li>
+				<li><a th:class="(${leftnav==2}?active:'')" href="/hr?leftnav=2">简历库</a></li>
+			</ul>
+
+		</tr>
+		<div class="singleline"></div>
+		<tr>
+
+			<ul class="nav">
+				<li role="presentation" class="hide-menu-title"><span class="menu-title">简历流程</span></li>
+			</ul>
+			<ul class="nav hide-menu" id="hr-flow-list">
+				<li><a role="presentation" th:class="(${leftnav==3}?active:'')" href="/interview/hrflowlist?leftnav=3&amp;state=5">已推送的简历</a></li>
+				<li><a role="presentation" th:class="(${leftnav==4}?active:'')" href="/interview/hrflowlist?leftnav=4&amp;state=8">被待定的简历</a></li>
+				<li><a role="presentation" th:class="(${leftnav==5}?active:'')" href="/interview/hrflowlist?leftnav=5&amp;state=10">已通过的简历</a></li>
+				<li><a role="presentation" th:class="(${leftnav==6}?active:'')" href="/interview/hrflowlist?leftnav=6&amp;state=15">已拒绝的简历</a></li>
+			</ul>
+
+		</tr>
+		<div class="singleline"></div>
+		<tr>
+
+			<ul class="nav">
+				<li role="presentation" class="hide-menu-title"><span class="menu-title">面试管理 <span class="badge" th:if="${undoInterview>0}" th:text="${undoInterview}">0</span></span></li>
+			</ul>
+			<ul class="nav hide-menu">
+				<li><a role="presentation" th:class="(${leftnav==7}?active:'')" href="/interview/hrpage?leftnav=7">待安排的面试 <span class="badge" th:if="${undoInterview>0}" th:text="${undoInterview}">0</span></a></li>
+				<li><a role="presentation" th:class="(${leftnav==8}?active:'')" href="/interview/hrpage?leftnav=8">所有面试</a></li>
+				<li><a role="presentation" th:class="(${leftnav==9}?active:'')" href="/interview/hrflowlist?leftnav=9&amp;state=20">面试进行中</a></li>
+				<li><a role="presentation" th:class="(${leftnav==10}?active:'')" href="/interview/hrflowlist?leftnav=10&amp;state=25">面试成功</a></li>
+				<li><a role="presentation" th:class="(${leftnav==11}?active:'')" href="/interview/hrflowlist?leftnav=11&amp;state=30">面试失败</a></li>
+			</ul>
+
+		</tr>
+		<div class="singleline"></div>
+		<tr>
+
+			<ul class="nav">
+				<li role="presentation" class="hide-menu-title"><span class="menu-title">入职管理</span><span class="badge" th:if="${interviewOk>0}" th:text="${interviewOk}">0</span></li>
+			</ul>
+			<ul class="nav hide-menu">
+				<li><a role="presentation" th:class="(${leftnav==12}?active:'')" href="/interview/hrflowlist?leftnav=12&amp;state=25">待发放入职通知<span class="badge" th:if="${interviewOk>0}"
+						th:text="${interviewOk}">0</span></a></li>
+				<li><a role="presentation" th:class="(${leftnav==13}?active:'')" href="/interview/hrflowlist?leftnav=13&amp;state=32">待入职</a></li>
+				<li><a role="presentation" th:class="(${leftnav==14}?active:'')" href="/interview/hrflowlist?leftnav=14&amp;state=33">已入职</a></li>
+				<li><a role="presentation" th:class="(${leftnav==15}?active:'')" href="/interview/hrflowlist?leftnav=15&amp;state=31">拒绝入职</a></li>
+			</ul>
+
+		</tr>
+		<div class="singleline"></div>
+		<tr>
+
+			<ul class="nav">
+				<li role="presentation" class="hide-menu-title"><span class="menu-title">其它</span></li>
+			</ul>
+			<ul class="nav hide-menu">
+				<li><a th:class="(${leftnav==103}?active:'')" href="/report?leftnav=103">报表生成</a></li>
+				<li><a th:class="(${leftnav==102}?active:'')" href="/functionpage?leftnav=102">需求/职位相关</a></li>
+				<li><a href="http://gum.game.line-alpha.me/users" target="_blank">用户角色管理(GUM)</a></li>
+				<li><a href="/interview/department">用户部门管理</a></li>
+			</ul>
+		</tr>
+		<div class="singleline"></div>
+		<tr>
+			<ul class="nav">
+				<li role="presentation" class="hide-menu-title"><span class="menu-title">帮助</span></li>
+			</ul>
+			<ul class="nav hide-menu">
+				<li><a href="/interview/help?page=0">HR功能介绍</a></li>
+				<li><a href="/interview/help?page=1">Leader功能介绍</a></li>
+				<li><a href="/interview/help?page=2">面试官功能介绍</a></li>
+				<li><a href="/interview/help?page=3">用户权限</a></li>
+			</ul>
+		</tr>
+
+
+	</table>
+
+	<table class="table table-bordered" th:fragment="hrrightbar">
+
+
+	</table>
+
+	<table class="table table-bordered" th:fragment="departmentleftbar">
+		<tr>
+			<ul class="nav">
+				<li role="presentation" class="hide-menu-title"><span class="menu-title">简历管理</span></li>
+			</ul>
+			<ul class="nav hide-menu">
+
+				<li>
+					<!-- 					<a role="presentation" th:class="(${leftnav==0}?active:'')" href="?leftnav=0" style="position: absolute; right: 0px" --> <!-- 						th:text="${backlog[0]}">num</a>  --> <a
+					th:class="(${leftnav==0}?active:'')" th:style="(${leftnav==0}? 'font-weight:bold ;')" href="departmentflow?leftnav=0">待评估简历 <span class="badge" th:if="${backlog[0]>0}" th:text="${backlog[0]}">0</span>
+				</a>
+				</li>
+				<li><a th:class="(${leftnav==1}?active:'')" th:style="(${leftnav==1}? 'font-weight:bold ;')" href="departmentflow?leftnav=1">已通过简历 </a></li>
+				<li><a th:class="(${leftnav==2}?active:'')" th:style="(${leftnav==2}? 'font-weight:bold ;')" href="departmentflow?leftnav=2">待定简历</a></li>
+				<li><a th:class="(${leftnav==3}?active:'')" th:style="(${leftnav==3}? 'font-weight:bold ;')" href="departmentflow?leftnav=3">已拒绝简历</a></li>
+
+			</ul>
+		</tr>
+		<div class="singleline"></div>
+		<tr>
+			<ul class="nav">
+				<li role="presentation" class="hide-menu-title"><span class="menu-title">面试管理</span></li>
+			</ul>
+			<ul class="nav hide-menu">
+
+				<li>
+					<a role="presentation"
+					th:class="(${leftnav==4}?active:'')" th:style="(${leftnav==4}? 'font-weight:bold ;')" href="departmentflow?leftnav=4">创建面试 <span class="badge" th:if="${backlog[4]>0}" th:text="${backlog[4]}">0</span>
+					</a>
+				</li>
+				<li><a role="presentation" th:class="(${leftnav==5}?active:'')" th:style="(${leftnav==5}? 'font-weight:bold ;')" href="departmentflow?leftnav=5">面试进行中</a></li>
+				<li><a role="presentation" th:class="(${leftnav==6}?active:'')" th:style="(${leftnav==6}? 'font-weight:bold ;')" href="departmentflow?leftnav=6">面试成功</a></li>
+				<li><a role="presentation" th:class="(${leftnav==7}?active:'')" th:style="(${leftnav==7}? 'font-weight:bold ;')" href="departmentflow?leftnav=7">面试失败</a></li>
+
+			</ul>
+		</tr>
+		<div class="singleline"></div>
+		<tr>
+			<ul class="nav">
+				<li role="presentation" class="hide-menu-title"><span class="menu-title">面试结束</span></li>
+			</ul>
+			<ul class="nav hide-menu">
+				<li><a role="presentation" th:class="(${leftnav==8}?active:'')" th:style="(${leftnav==8}? 'font-weight:bold ;')" href="departmentflow?leftnav=8">待发放入职通知</a></li>
+				<li><a role="presentation" th:class="(${leftnav==9}?active:'')" th:style="(${leftnav==9}? 'font-weight:bold ;')" href="departmentflow?leftnav=9">待入职</a></li>
+				<li><a role="presentation" th:class="(${leftnav==10}?active:'')" th:style="(${leftnav==10}? 'font-weight:bold ;')" href="departmentflow?leftnav=10">已入职</a></li>
+				<li><a role="presentation" th:class="(${leftnav==11}?active:'')" th:style="(${leftnav==11}? 'font-weight:bold ;')" href="departmentflow?leftnav=11">拒绝入职</a></li>
+			</ul>
+		</tr>
+	</table>
+</body>
+</html>

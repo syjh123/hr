@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf8"/>
+<meta name="author" content="zhou.jinyu" />
+<object th:include="fragments/navbar :: head"></object>
+<link href="/css/hr.css" rel="stylesheet" />
+<script src="/js/myinterview.js"></script>
+
+<style>
+body {
+	padding-top: 60px;
+	font-size: 1pt;
+}
+
+
+</style>
+<script>
+	$(document).ready(function(){
+		var iv_id = $("#iv_id").val();
+		console.log("get iv_id "+iv_id);
+		$("#iv_detail_single_info").load("/iver/single_info?iv_id="+iv_id);
+		$("#iv_detail_comment_info").load("/iver/iv_record?iv_id="+iv_id);
+	})
+</script>
+</head>
+
+<body>
+	<div th:replace="fragments/navbar :: navbar"></div>
+	<div class="alert alert-danger" id="msg" role="alert">...</div>
+	<input id="iv_id" th:value="${iv_id}" hidden="true" /> 
+	<div class="container" >
+	
+		<div class="row" id="iv_detail_single_info" />
+		<div class="row" id="iv_detail_comment_info" />
+		
+	</div>
+</body>
+</html>

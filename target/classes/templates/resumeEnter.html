@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+
+<title>Recurit System</title>
+<link href="/webjars/bootstrap/3.3.5/css/bootstrap.min.css"
+	rel="stylesheet" media="screen" />
+
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="/js/html5shiv.min.js"></script>
+      <script src="/js/respond.min.js"></script>
+    <![endif]-->
+
+<script src="/webjars/jquery/1.11.3/jquery.min.js"></script>
+<script src="/webjars/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<style>
+body {
+	padding-top: 50px;
+}
+</style>
+
+<!-- =========================new================================ -->
+
+<script type="text/javascript" src="/webjars/jquery/1.11.3/jquery.js"></script> 
+<link href="/webjars/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" media="screen"/>	
+<link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen"/>
+
+
+
+<link href="jquery-ui.css" rel="stylesheet"/>
+<script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
+<script src="js/calendar.js"></script>
+<!--文本框获取焦点显示日历需要导入的js文件 -->
+<script src="js/custom.min.js"></script>
+<link rel="stylesheet" href="css/calendar.css" />
+
+	<style>
+	body{
+		font: 62.5% "Trebuchet MS", sans-serif;
+		margin: 50px;
+	}
+	.demoHeaders {
+		margin-top: 2em;
+	}
+	#dialog-link {
+		padding: .4em 1em .4em 20px;
+		text-decoration: none;
+		position: relative;
+	}
+	#dialog-link span.ui-icon {
+		margin: 0 5px 0 0;
+		position: absolute;
+		left: .2em;
+		top: 50%;
+		margin-top: -8px;
+	}
+	#icons {
+		margin: 0;
+		padding: 0;
+	}
+	#icons li {
+		margin: 2px;
+		position: relative;
+		padding: 4px 0;
+		cursor: pointer;
+		float: left;
+		list-style: none;
+	}
+	#icons span.ui-icon {
+		float: left;
+		margin: 0 4px;
+	}
+	.fakewindowcontain .ui-widget-overlay {
+		position: absolute;
+	}
+	select {
+		width: 200px;
+	}
+	</style>
+	
+	
+</head>
+
+<body>
+	<div th:replace="fragments/navbar :: navbar"></div>
+	
+<form action="addresume" >
+	<h1>信息录入</h1>
+
+
+<!-- Tabs -->
+<div id="tabs">
+	<ul>
+		<li><a href="#tabs-1">职位申请</a></li>
+		<li><a href="#tabs-2">个人信息</a></li>
+		<li><a href="#tabs-3">教育背景</a></li>
+		<li><a href="#tabs-4">工作与实践</a></li>
+		
+	</ul>
+	
+	<div id="tabs-1">
+		<h2 class="demoHeaders">简历渠道</h2>
+		<select id="selectmenu_sn" name="channel_id">
+			<option selected="selected" value="1">自投</option>
+			<option value="2">智联</option>
+			<option value="3">校招</option>
+			<option value="4">其他</option>
+		</select>
+		
+		<h2 class="demoHeaders">简历编号</h2>
+		<div>
+			<input id="autocomplete"  name="sn"/>
+		</div>
+		
+		
+		
+		
+		
+		<h2 class="demoHeaders" >部门</h2>
+		<select id="part">
+			<option selected="selected">linegameservice</option>
+			<option>HR</option>
+			<option>总务</option>
+			<option>财务</option>
+		</select>
+
+		<h2 class="demoHeaders">职位</h2>
+		<select id="position" name="position">
+			<option value="1" selected="selected">研发</option>
+			<option value="2">UI</option>
+			<option value="3">PM</option>
+		</select>
+		
+		
+		
+		<h2 class="demoHeaders">简历</h2>
+		<div>
+			<input id="autocomplete" title="type &quot;a&quot;" type="File" name="resume_file"/>
+		</div>
+		
+		
+	</div>
+	
+	
+	
+	<div id="tabs-2">
+		<!-- Autocomplete -->
+			<h2 class="demoHeaders">FIRST NAME</h2>
+			<div>
+				<input id="autocomplete" name="firstname"/>
+			</div>
+			<h2 class="demoHeaders">LAST NAME</h2>
+			<div>
+				<input id="autocomplete" name="lastname"/>
+			</div>
+			
+			<h2 class="demoHeaders">SEX</h2>
+			<div>
+				<input type="radio" checked="checked" name="Sex" value="male" />男
+				<input type="radio" name="Sex" value="female" />女
+			</div>
+			
+			<!-- Datepicker -->
+			<h2 class="demoHeaders">birthday</h2>
+			<input type='text' id='datepicker' name="birthday"/>
+	<script type="text/javascript">
+		$( "#datepicker" ).datepicker(
+			{
+				showMonthAfterYear:true, //年在前，月在后
+				//yearSuffix:"年",	     //添加后缀年
+				//prevText:"上一月",       //鼠标放在翻月按钮上显示的文字
+				//nextText:"下一月",
+				//monthNames:["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月",],      //以中文显示月份
+				//以中文显示每周（必须按此顺序，否则日期出错）
+				//dayNamesMin:["日","一","二","三","四","五","六",], 
+				//在文本框中显示日期的格式 
+				dateFormat:"yy-mm-dd",
+				//showOn:"button",     //在文本框后添加选择按钮
+				//buttonText:"日期",    //设置选择按钮的文本
+				//buttonImage:"css/images/animated-overlay.gif",  //为按钮设置图片
+				//布尔值，是否将图片显示为按钮形式，FALSE显示按钮形式，TRUE单独显示图片，默认是FALSE
+				buttonImageOnly:true, 
+				changeYear:true,  //布尔值，是否可以选择年份
+				changeMonth:true, //布尔值，是否可以选择月份
+				//changeMonth为TRUE时，月份的缩写
+				monthNamesShort:["01","02","03","04","05","06","07","08","09","10","11","12"],
+				//showButtonPanel:true,   //是否显示面板
+				// 设置面板上返回当前日的文字，只有showButtonPanel: true才会显示出来
+				//currentText:"今天",   
+				// 设置面板上关闭面板的文字，只有showButtonPanel: true才会显示出来  
+				closeText: "关闭",      
+				//在changeYear为true时，设置年份范围，c表示当前年份，加减10表示当前年份推后10年和推前10年
+				yearRange: "c-100:c+10", 
+			});
+	</script>
+			
+			<!-- Progressbar -->
+			<h2 class="demoHeaders">籍贯</h2>
+			<lable> 国家：</lable>
+			
+				<select id="selectmenu">
+					<option selected="selected">China</option>
+					<option>Japan</option>
+					<option>Korea</option>
+					<option>Others</option>
+				</select>
+
+				<lable> 省份：</lable>
+					<select id="selectmenu" >
+						<option selected="selected">北京</option>
+						<option>上海</option>
+						<option>辽宁</option>
+					</select>
+			
+			
+			<h2 class="demoHeaders">TEL</h2>
+			<div>
+				<input id="autocomplete" title="type &quot;a&quot;"/>
+			</div>
+			<h2 class="demoHeaders">E-MAIL</h2>
+			<div>
+				<input id="autocomplete" title="type &quot;a&quot;"/>
+			</div>
+	
+	
+	</div>
+	<div id="tabs-3">
+		<h2 class="demoHeaders">学历</h2>
+				<select id="selectmenu">
+					<option value="1" selected="selected">高中</option>
+					<option value="2">专科</option>
+					<option value="3">本科</option>
+					<option value="4">硕士</option>
+					<option value="5">博士</option>
+					<option value="6">博士后</option>
+				</select>
+		<h2 class="demoHeaders">毕业院校</h2>
+				<select id="selectmenu" name="school_rank">
+					<option value="1" selected="selected">清华</option>
+					<option value="2" >北大</option>
+				</select>
+		<h2 class="demoHeaders">专业</h2>
+				<select id="selectmenu">
+					<option selected="selected">计算机相关</option>
+					<option>金融</option>
+				</select>
+		<h2 class="demoHeaders">毕业时间</h2>	
+		<input type='text' id='datepicker2'/>
+	<script type="text/javascript">
+		$( "#datepicker2" ).datepicker(
+			{
+				showMonthAfterYear:true, //年在前，月在后
+				//yearSuffix:"年",	     //添加后缀年
+				//prevText:"上一月",       //鼠标放在翻月按钮上显示的文字
+				//nextText:"下一月",
+				//monthNames:["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月",],      //以中文显示月份
+				//以中文显示每周（必须按此顺序，否则日期出错）
+				//dayNamesMin:["日","一","二","三","四","五","六",], 
+				//在文本框中显示日期的格式 
+				dateFormat:"yy-mm-dd",
+				//showOn:"button",     //在文本框后添加选择按钮
+				//buttonText:"日期",    //设置选择按钮的文本
+				//buttonImage:"css/images/animated-overlay.gif",  //为按钮设置图片
+				//布尔值，是否将图片显示为按钮形式，FALSE显示按钮形式，TRUE单独显示图片，默认是FALSE
+				buttonImageOnly:true, 
+				changeYear:true,  //布尔值，是否可以选择年份
+				changeMonth:true, //布尔值，是否可以选择月份
+				//changeMonth为TRUE时，月份的缩写
+				monthNamesShort:["01","02","03","04","05","06","07","08","09","10","11","12"],
+				//showButtonPanel:true,   //是否显示面板
+				// 设置面板上返回当前日的文字，只有showButtonPanel: true才会显示出来
+				//currentText:"今天",   
+				// 设置面板上关闭面板的文字，只有showButtonPanel: true才会显示出来  
+				//closeText: "关闭",      
+				//在changeYear为true时，设置年份范围，c表示当前年份，加减10表示当前年份推后10年和推前10年
+				yearRange: "c-10:c+10", 
+			});
+	</script>
+		
+		<!-- Accordion -->
+		<h2 class="demoHeaders">语言能力</h2>
+			<div id="accordion">
+				<h3>英语</h3>
+				<div>
+					<select id="selectmenu" name="english">
+					<option value="1" selected="selected">四级</option>
+					<option value="2">六级</option>
+					<option value="3">专业八级</option>
+					<option value="4">GRE</option>
+				</select>
+				</div>
+				<h3>日语</h3>
+				<div>
+					<select id="selectmenu" name="japan">
+						<option value="1" selected="selected">一级</option>
+						<option value="2">二级</option>
+						<option value="3">三级</option>
+					</select>
+				</div>
+				<h3>韩语</h3>
+				<div>
+					<select id="selectmenu" name="korea">
+						<option value="1" selected="selected">一级</option>
+						<option value="2">二级</option>
+						<option value="3">三级</option>
+					</select>
+				</div>
+			</div>
+			
+	</div>
+	
+	<div id="tabs-4">
+		<!-- Accordion -->
+		
+			<div id="accordion">
+				<h3>工作经历</h3>
+				<div>
+					<textarea name="experience1">
+					</textarea>
+				
+				</div>
+				<h3>实践经历</h3>
+				<div>
+					<textarea name="experience1">
+					</textarea>
+				
+				</div>
+				<h3>比赛及获奖</h3>
+				<div>
+					<textarea name="experience1">
+					</textarea>
+				
+				</div>
+			</div>
+	</div>
+</div>
+<input id="autocomplete" type="submit" value="submit"/>
+</form>
+
+
+<script src="external/jquery/jquery.js"></script>
+<script src="jquery-ui.js"></script>
+<script>
+
+$( "#accordion" ).accordion();
+
+
+
+var availableTags = [
+	"ActionScript",
+	"AppleScript",
+	"Asp",
+	"BASIC",
+	"C",
+	"C++",
+	"Clojure",
+	"COBOL",
+	"ColdFusion",
+	"Erlang",
+	"Fortran",
+	"Groovy",
+	"Haskell",
+	"Java",
+	"JavaScript",
+	"Lisp",
+	"Perl",
+	"PHP",
+	"Python",
+	"Ruby",
+	"Scala",
+	"Scheme"
+];
+$( "#autocomplete" ).autocomplete({
+	source: availableTags
+});
+
+
+
+$( "#button" ).button();
+$( "#radioset" ).buttonset();
+
+
+
+$( "#tabs" ).tabs();
+
+
+
+$( "#dialog" ).dialog({
+	autoOpen: false,
+	width: 400,
+	buttons: [
+		{
+			text: "Ok",
+			click: function() {
+				$( this ).dialog( "close" );
+			}
+		},
+		{
+			text: "Cancel",
+			click: function() {
+				$( this ).dialog( "close" );
+			}
+		}
+	]
+});
+
+// Link to open the dialog
+$( "#dialog-link" ).click(function( event ) {
+	$( "#dialog" ).dialog( "open" );
+	event.preventDefault();
+});
+
+
+
+$( "#datepicker" ).datepicker({
+	inline: true
+});
+
+
+
+$( "#slider" ).slider({
+	range: true,
+	values: [ 17, 67 ]
+});
+
+
+
+$( "#progressbar" ).progressbar({
+	value: 20
+});
+
+
+
+$( "#spinner" ).spinner();
+
+
+
+$( "#menu" ).menu();
+
+
+
+$( "#tooltip" ).tooltip();
+
+
+
+$( "#selectmenu" ).selectmenu();
+
+
+// Hover states on the static widgets
+$( "#dialog-link, #icons li" ).hover(
+	function() {
+		$( this ).addClass( "ui-state-hover" );
+	},
+	function() {
+		$( this ).removeClass( "ui-state-hover" );
+	}
+);
+</script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta name="author" content="dong.yufei" />
+<meta charset="utf-8" />
+<object th:include="fragments/navbar :: head" th:remove="tag"></object>
+<object th:replace="fragments/button :: script" th:remove="tag"></object>
+<link href="/css/hr.css" rel="stylesheet" />
+<link href="/css/iver.css" rel="stylesheet" />
+<script src="/js/laydate.js"></script>
+<style>
+.search {
+	width: 200px;
+}
+
+.borderless tbody tr td, .borderless tbody tr th, .borderless thead tr th
+	{
+	border: none;
+}
+</style>
+<script>
+	$(document).ready(function(){
+		bindMenuClick();
+		
+	})
+	function createInterview(interviewId) {
+		window.location = "/interview/edit?interview_id=" + interviewId;
+		$('button').attr('disabled', "true");
+		setTimeout(function() {
+			$('button').removeAttr("disabled");//把按钮id为submit的按钮启用
+		}, 5000);
+	}
+
+	function date2String(date) {
+		return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+	}
+
+	function changeRange(range) {
+		if (range > 0) {
+			var today = new Date();
+			var startday = new Date();
+			startday.setTime(today.getTime());
+			startday.setDate(startday.getDate() - range + 1);
+			var todayString = date2String(today);
+			var startdayString = date2String(startday);
+
+			var start = {
+				elem : '#datestart',
+				format : 'YYYY-MM-DD',
+				min : '1971-01-01', //设定最小日期为当前日期
+				max : todayString, //最大日期
+				istoday : false,
+				choose : function(datas) {
+					end.min = datas; //开始日选好后，重置结束日的最小日期
+					end.start = datas //将结束日的初始值设定为开始日
+					editDate();
+				}
+			};
+			var end = {
+				elem : '#dateend',
+				format : 'YYYY-MM-DD',
+				min : startdayString,
+				max : '2099-06-16',
+				istoday : false,
+				choose : function(datas) {
+					start.max = datas; //结束日选好后，重置开始日的最大日期
+					editDate();
+				}
+			};
+			laydate(start);
+			laydate(end);
+
+			$('#datestart').val(startdayString);
+			$('#dateend').val(todayString);
+		} else {
+			if (range == 0) {
+				$('#datestart').val("");
+				$('#dateend').val("");
+			}
+		}
+	}
+
+	function editDate() {
+		$('#daterange').val('-1');
+	}
+
+	function openLittle(flowId) {
+		window.open("/interview/createfinal?flow_id=" + flowId, "", "fullscreen=0");
+	}
+</script>
+</head>
+
+<body>
+	<div th:replace="fragments/navbar :: navbar(whosePage=hr)"></div>
+	<div class="alert alert-danger" id="msg" role="alert">...</div>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-2">
+				<div th:replace="fragments/navbar :: hrleftbar"></div>
+			</div>
+			<div class="col-md-10">
+				<div class="row">
+					<form>
+						<div class="col-md-10">
+
+							<div class="row">
+								<div class="col-md-5">
+									<div class="form-group">
+										<label for="resumeName">应聘者</label> <input type="text" class="form-control" id="resumeName" name="resumeName" placeholder="名字"
+											th:value="${resumeName}" />
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="form-group">
+										<label for="department">部门</label> <select class="search form-control" id="department" name="department">
+											<option value="0">全部</option>
+											<option th:each="depart:${departments}" th:value="${depart.id}" th:text="${depart.name}"
+												th:selected="${depart.id==departmentId}?'selected'"></option>
+										</select>
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="form-group" style="padding-left: 50px;">
+										<label for="sender">发送人</label> <input class="form-control" id="sender" name="sender" th:value="${senderName}" />
+									</div>
+								</div>
+							</div>
+
+
+
+							<div class="row">
+								<div class="col-md-2">
+									<div class="form-group">
+										<label for="state">状态</label> <select class="form-control" id="state" name="state">
+											<option value="-1">全部</option>
+											<option th:each=" one1 : ${Values.STATE_LIST}" th:value="${one1.value}" th:text="${one1.name}"
+												th:selected="${one1.value==#strings.toString(state)}?'selected'"></option>
+										</select>
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-group">
+										<label for="position">职位</label> <select class="form-control" id="position" name="position">
+											<option value="0">全部</option>
+											<option th:each="one : ${positions}" th:value="${one.id}" th:text="${one.name}" th:selected="${one.id==positionId}?'selected'"></option>
+										</select>
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-group">
+										<label for="daterange">期间</label> <select class="form-control" id="daterange" onchange="changeRange(this.value);">
+											<option value="0">全部</option>
+											<option value="1">1天</option>
+											<option value="3">3天</option>
+											<option value="7">1周</option>
+											<option value="28">4周</option>
+											<option value="365">1年</option>
+											<option value="-1">直接输入</option>
+										</select>
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="form-group">
+										<label for="datestart"></label> <input type="text" class="form-control laydate-icon" id="datestart" name="datestart"
+											style="height: 35px; margin-top: 5px;" placeholder="开始日期" onchange="editDate();" th:value="${dateStartString}" />
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="form-group">
+										<label for="dateend"></label> <input type="text" class="form-control laydate-icon" id="dateend" name="dateend"
+											style="height: 35px; margin-top: 5px;" placeholder="结束日期" onchange="editDate();" th:value="${dateEndString}" />
+									</div>
+								</div>
+							</div>
+
+						</div>
+
+						<div class="col-md-2">
+							<button type="submit" class="btn btn-default" style="margin-top: 25px; height: 100px">搜索</button>
+						</div>
+					</form>
+				</div>
+				<div class="row">
+					<div class="col-md-12">
+						<h4>推荐简历列表</h4>
+						<table class="table table-bordered">
+							<tr>
+								<th style="width: 10%;">候选人</th>
+								<th style="width: 20%;">部门</th>
+								<th style="width: 10%;">职位</th>
+								<th style="width: 20%;">最后操作者</th>
+								<th style="width: 20%;">最后操作时间</th>
+								<th style="width: 10%;">当前状态</th>
+								<th style="width: 10%;">操作</th>
+							</tr>
+
+							<tr th:each="row : ${results}">
+								<td th:text="${row[resume_name]}">James</td>
+								<td th:text="${row.department}">WEB</td>
+								<td th:text="${row.position}">JAVA</td>
+								<td th:text="${row[sender_name]}">LiMing</td>
+								<td th:text="${#calendars.format(row.create_time , 'yyyy-MM-dd hh:mm')}">2015-08-11 20:12</td>
+								<td th:text="${Values.STATE_MAP_TITLE_ZH[row.state]}">未处理</td>
+								<td>
+									<a th:href="'/resumeflow?resume_id=' + ${row.resume_id}">历史</a>
+									<a th:if="${row.state==25 or row.state==32}"
+									th:onclick="'openLittle(' + ${row.flow_id} + ');'">结束状态</a>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				<div th:replace="fragments/pages :: pages"></div>
+
+			</div>
+
+		</div>
+	</div>
+
+	<object th:include="fragments/button :: modal" th:remove="tag"></object>
+
+	<script>
+		var start = {
+			elem : '#datestart',
+			format : 'YYYY-MM-DD',
+			min : '1971-01-01', //设定最小日期为当前日期
+			max : '2099-06-16', //最大日期
+			istoday : false,
+			choose : function(datas) {
+				end.min = datas; //开始日选好后，重置结束日的最小日期
+				end.start = datas //将结束日的初始值设定为开始日
+				editDate();
+			}
+		};
+		var end = {
+			elem : '#dateend',
+			format : 'YYYY-MM-DD',
+			min : '1971-01-01',
+			max : '2099-06-16',
+			istoday : false,
+			choose : function(datas) {
+				start.max = datas; //结束日选好后，重置开始日的最大日期
+				editDate();
+			}
+		};
+		laydate(start);
+		laydate(end);
+	</script>
+
+</body>
+</html>

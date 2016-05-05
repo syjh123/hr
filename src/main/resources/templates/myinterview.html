@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf8"/>
+<meta name="author" content="zhou.jinyu" />
+<object th:include="fragments/navbar :: head"></object>
+<script src="/js/myinterview.js"></script>
+<link href="/css/hr.css" rel="stylesheet" />
+<style>
+body {
+	padding-top: 60px;
+	font-size: 1pt;
+}
+
+
+</style>
+<script>
+	$(document).ready(function(){
+		$("#left-nav").load("/iver/ivlist_type_nav");
+		$("#iv_content").load("/iver/ivlist");
+	})
+</script>
+</head>
+
+<body>
+	<div th:replace="fragments/navbar :: navbar"></div>
+	<div class="alert alert-danger" id="msg" role="alert">...</div>
+
+	
+
+	<div class="container" >
+		
+		<div class="row">
+			<div class="col-xs-2" id="left-nav">
+			</div>
+			<div class="col-xs-10" id="iv_content">
+				
+			</div>
+		</div>
+	</div>
+</body>
+</html>

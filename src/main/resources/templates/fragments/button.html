@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta name="author" content="dong.yufei" />
+<meta charset="utf-8" />
+<object th:include="fragments/navbar :: head" th:remove="tag"></object>
+<script th:fragment="script">
+	function accept(thisform) {
+		$('button').attr('disabled', "true");
+		setTimeout(function() {
+			$('button').removeAttr("disabled");//把按钮id为submit的按钮启用
+		}, 2000);
+		$.ajax({
+			url : "/interview/ajax_leaderaccept",
+			data : {
+				process_id : thisform.acceptprocessId.value,
+				information : thisform.acceptReason.value
+			},
+			type : "POST",
+			dataType : "json",
+			success : function(json) {
+				$('button').removeAttr("disabled");
+				with (json) {
+					$('#acceptModal').modal('hide');
+					if (ok) {
+						warning(msg, 0);
+						$('#flow-id').val($('#accept-flow-id').val());
+						$('#after-accept').modal();
+					} else
+						warning(msg, 1);
+				}
+			},
+			error : function(xhr, status, errorThrown) {
+				$('#acceptModal').modal('hide');
+				warning('post error , please retry', 1);
+				$('button').removeAttr("disabled");
+			}
+		});
+		return false;
+	}
+
+	function refuse(thisform) {
+		$('button').attr('disabled', "true");
+		setTimeout(function() {
+			$('button').removeAttr("disabled");//把按钮id为submit的按钮启用
+		}, 2000);
+		$.ajax({
+			url : "/interview/ajax_leaderrefuse",
+			data : {
+				process_id : thisform.refuseprocessId.value,
+				information : thisform.refuseReason.value
+			},
+			type : "POST",
+			dataType : "json",
+			success : function(json) {
+				$('button').removeAttr("disabled");
+				with (json) {
+					if (ok) {
+						warning(msg, 0);
+						location.reload();
+					} else
+						warning(msg, 1);
+					$('#myModal').modal('hide');
+				}
+			},
+			error : function(xhr, status, errorThrown) {
+				$('#myModal').modal('hide');
+				warning('post error , please retry', 1);
+				$('button').removeAttr("disabled");
+			}
+		});
+		return false;
+	}
+
+	function undet(thisform) {
+		$('button').attr('disabled', "true");
+		setTimeout(function() {
+			$('button').removeAttr("disabled");//把按钮id为submit的按钮启用
+		}, 2000);
+		$.ajax({
+			url : "/interview/ajax_leaderundet",
+			data : {
+				process_id : thisform.processId.value,
+				information : thisform.reason.value
+			},
+			type : "POST",
+			dataType : "json",
+			success : function(json) {
+				$('button').removeAttr("disabled");
+				with (json) {
+					if (ok) {
+						warning(msg, 0);
+						location.reload();
+					} else
+						warning(msg, 1);
+					$('#undetModal').modal('hide');
+				}
+			},
+			error : function(xhr, status, errorThrown) {
+				$('#undetModal').modal('hide');
+				warning('post error , please retry', 1);
+				$('button').removeAttr("disabled");
+			}
+		});
+		return false;
+	}
+
+	function refuseButton(id) {
+		$('#refuseprocessId').val(id);
+		$('#myModal').modal();
+	}
+	function undeterminedButton(id) {
+		$('#undetprocessId').val(id);
+		$('#undetModal').modal();
+	}
+	function acceptButton(id, flowId) {
+		$('#acceptprocessId').val(id);
+		$('#accept-flow-id').val(flowId);
+		$('#acceptModal').modal();
+	}
+</script>
+</head>
+
+<body>
+	<div th:replace="fragments/navbar :: navbar"></div>
+	<div class="alert alert-danger" id="msg" role="alert">...</div>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<div th:if="${isHr}">
+					<h2>Hello, HR!</h2>
+					<p>You can press the HR function to do something...</p>
+					<div th:if="${uncontacteds!=null} and ${uncontacteds.size()>0}">
+						<h3>Uncontacted Interview</h3>
+						<table class="table">
+							<tr>
+								<td>Interview Id</td>
+								<td>Flow Id</td>
+								<td>Create User Id</td>
+								<td>Edit Interview</td>
+							</tr>
+							<tr th:each="interview:${uncontacteds}">
+								<td th:text="${interview.id}"></td>
+								<td th:text="${interview.flow_id}"></td>
+								<td th:text="${interview.create_user_id}"></td>
+								<td><button class="btn btn-success" th:onclick=" 'createInterview(' + ${interview.id} + ')' ">编辑面试</button></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				<div th:if="${isLeader}">
+					<h2>Hello, Department Leader!</h2>
+					<p>You can check the Recommend Resume List and accept/refuse the recommend.</p>
+					<p>You can create interview yourself or let HR to check the time.</p>
+					<div th:if="${undealtrecommends!=null} and ${undealtrecommends.size()>0}">
+						<h3>Undealt Recommend</h3>
+						<table class="table">
+							<tr>
+								<td>Process Id</td>
+								<td>Flow Id</td>
+								<td>Create Time</td>
+								<td>Accept</td>
+								<td>Refuse</td>
+							</tr>
+							<tr th:each="process:${undealtrecommends}">
+								<td th:text="${process.id}"></td>
+								<td th:text="${process.flow_id}"></td>
+								<td th:text="${process.create_time}"></td>
+								<td><a th:fragment="accept (processId, flowId)" th:onclick=" 'acceptButton(' + ${processId} + ',' + ${flowId} + ')' " href="#">通过</a></td>
+								<td><a th:fragment="undet (processId)" th:onclick=" 'undeterminedButton(' + ${processId} + ')' " href="#">待定</a></td>
+								<td><a th:fragment="reject (processId)" th:onclick=" 'refuseButton(' + ${processId} + ')' " href="#">拒绝</a></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				<div>
+					<h3>If you are a interviewer</h3>
+					<p>You can check your interview, and give comment and score</p>
+				</div>
+				<div th:if="${isLeader} or ${isHr}">
+					<h3>Permission Management</h3>
+					<p>
+						In GUM System, HR and Leader can manage the role of users, such as set someone to a Leader/HR. click<a href="http://gum.game.line-alpha.me/users">
+							the url to the GUM</a>
+					</p>
+					<p>
+						if you want to manage the department, click <a href="/interview/department">Department Manage</a>
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div th:fragment="modal">
+		<!-- REFUSE Modal -->
+		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+						<h4 class="modal-title" id="myModalLabel">简历拒绝</h4>
+					</div>
+					<form onsubmit="return refuse(this);" action="#" method="post">
+						<div class="modal-body">
+
+							<div class="form-group">
+<!-- 								<label for="recipient-name" class="control-label">Process Id</label>  -->
+								<input type="hidden" class="form-control" id="refuseprocessId"
+									name="refuseprocessId" value="-1" disabled="disabled" />
+							</div>
+							<div class="form-group">
+								<label for="message-text" class="control-label">评价</label>
+								<textarea class="form-control" id="message-text" name="refuseReason"></textarea>
+							</div>
+
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+							<button type="submit" class="btn btn-danger">拒绝</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<!--Undetermined modal -->
+		<div class="modal fade" id="undetModal" tabindex="-1" role="dialog" aria-labelledby="undetModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+						<h4 class="modal-title" id="undetModalLabel">简历待定</h4>
+					</div>
+					<form onsubmit="return undet(this);" action="#" method="post">
+						<div class="modal-body">
+
+							<div class="form-group">
+<!-- 								<label for="recipient-name" class="control-label">Process Id</label>  -->
+								<input type="hidden" class="form-control" id="undetprocessId"
+									name="processId" value="-1" disabled="disabled" />
+							</div>
+							<div class="form-group">
+								<label for="message-text" class="control-label">评价</label>
+								<textarea class="form-control" id="undet-message-text" name="reason"></textarea>
+							</div>
+
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+							<button type="submit" class="btn btn-info">待定</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<!-- Accept Modal -->
+		<div class="modal fade" id="acceptModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+						<h4 class="modal-title" id="AcceptModalLabel">简历通过</h4>
+					</div>
+					<form onsubmit="return accept(this);" action="#" method="post">
+						<div class="modal-body">
+
+							<div class="form-group">
+<!-- 								<label for="recipient-name" class="control-label">Process Id</label> -->
+								 <input type="hidden" class="form-control" id="acceptprocessId"
+									name="refuseprocessId" value="-1" disabled="disabled" />
+							</div>
+							<div class="form-group">
+								<label for="message-text" class="control-label">评价</label>
+								<textarea class="form-control" id="acceptmessage-text" name="acceptReason"></textarea>
+							</div>
+							<input type="hidden" id="accept-flow-id" name="acceptFlowId" />
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+							<button type="submit" class="btn btn-success">通过</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<!-- Small modal -->
+		<div class="modal fade" id="after-accept" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="AfterAcceptModalLabel">Accept Success!</h4>
+					</div>
+
+					<form action="/interview/create">
+						<div class="modal-footer">
+							<input type="hidden" id="flow-id" name="flow_id" />
+							<button type="button" class="btn btn-default" onClick="location.reload();">取消</button>
+							<button type="submit" class="btn btn-success">创建面试</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

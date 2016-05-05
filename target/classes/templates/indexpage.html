@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>Sample Index</title>
+</head>
+
+<body>
+<p th:text="${authUser}"></p>
+<p>Input 2 numbers , press submit</p>
+<form action="/testAction">
+	<input name="numA"/>
+	<input name="numB"/>
+	<button type="submit">submit</button>
+</form>
+<a href="/logout">logout</a>
+</body>
+</html>

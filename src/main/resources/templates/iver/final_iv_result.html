@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf8" />
+<meta name="author" content="zhou.jinyu" />
+<object th:include="fragments/navbar :: head"></object>
+<link href="/css/hr.css" rel="stylesheet" />
+<link href="/css/iver.css" rel="stylesheet" />
+<style>
+.row
+{
+	margin-top:20px;
+}
+</style>
+<script>
+$(document).ready(function(){
+	$("#final_cmt_commiter").click(function(){
+		var iv_id = $("#final_comment_iv_id").val();
+		var pass = $("input:radio:checked").val();
+		if(pass==null) {
+			alert("请选择一个通过结果");
+			return;
+		}
+		var comment = $("textarea").val();
+		toggle_edit($("body"));
+		console.log("iv id is "+iv_id);
+		commit_final_result(pass,comment,iv_id);
+	});
+});
+function commit_final_result(pass,comment,  ivId) {
+	var url = "/iver/upload_final_cmt";
+	var data = {
+		pass: pass,
+		comment: comment,
+		iv_id: ivId
+	};
+	doAjax(url,data,callback,callback);
+}
+</script>
+</head>
+
+<body>
+
+	<div class="alert alert-danger" id="msg" role="alert">...</div>
+	<input name="iv_id" id="final_comment_iv_id" th:value="${iv_id}" type="hidden" />
+	<h3>面试综合评定</h3> <span ><b>Tip: 此评定将作为面试者的最终面试结果提交</b></span>
+	<div class="row">
+		<div class="col-xs-1">
+			<label class="radio-inline"> <input class="editing" type="radio" name="pass"
+				value="true" /> <span style="color:#43b945">通过</span>
+			</label>
+		</div>
+		<div class="col-xs-1">
+			<label class="radio-inline"> <input type="radio" class="editing" name="pass"
+				value="false" />  <span style="color:red">不通过</span>
+			</label>
+		</div>
+	</div>
+	<div class="row" >
+		<div class="col-xs-12">
+			<textarea class="form-control editing" rows="8"  placeholder="综合评价" />
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-2">
+			<button  class="btn btn-success editing" id="final_cmt_commiter">确定</button>
+		</div>
+	</div>
+
+
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+
+<title>Recurit System</title>
+<link href="/webjars/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" media="screen" />
+
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="/js/html5shiv.min.js"></script>
+      <script src="/js/respond.min.js"></script>
+    <![endif]-->
+<!-- Author zhou.jinyu@navercorp.com -->
+<script src="/webjars/jquery/1.11.3/jquery.min.js"></script>
+<script src="/webjars/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="/js/hr.js"></script>
+<link href="/css/hr.css" rel="stylesheet" />
+<script>
+	function accept(thisform) {
+		$('button').attr('disabled', "true");
+		setTimeout(function() {
+			$('button').removeAttr("disabled");//把按钮id为submit的按钮启用
+		}, 2000);
+		$.ajax({
+			url : "/interview/ajax_leaderaccept",
+			data : {
+				process_id : thisform.acceptResumeId.value,
+				information : thisform.acceptReason.value
+			},
+			type : "POST",
+			dataType : "json",
+			success : function(json) {
+				$('button').removeAttr("disabled");
+				with (json) {
+					if (ok) {
+						warning(msg, 0);
+					} else
+						warning(msg, 1);
+					$('#acceptModal').modal('hide');
+					alert("成功！你是要为这个东西建个面试去呢，还是留在这个页面呢？（其实这个功能还没做，你只能先留在这个页面）")
+				}
+			},
+			error : function(xhr, status, errorThrown) {
+				warning('post error , please retry', 1);
+				$('#acceptModal').modal('hide');
+				$('button').removeAttr("disabled");
+			}
+		});
+		return false;
+	}
+
+	function refuse(thisform) {
+		$('button').attr('disabled', "true");
+		setTimeout(function() {
+			$('button').removeAttr("disabled");//把按钮id为submit的按钮启用
+		}, 2000);
+		$.ajax({
+			url : "/interview/ajax_leaderrefuse",
+			data : {
+				process_id : thisform.refuseResumeId.value,
+				information : thisform.refuseReason.value
+			},
+			type : "POST",
+			dataType : "json",
+			success : function(json) {
+				$('button').removeAttr("disabled");
+				with (json) {
+					if (ok) {
+						warning(msg, 0);
+					} else
+						warning(msg, 1);
+					$('#myModal').modal('hide');
+				}
+			},
+			error : function(xhr, status, errorThrown) {
+				warning('post error , please retry', 1);
+				$('#myModal').modal('hide');
+				$('button').removeAttr("disabled");
+			}
+		});
+		return false;
+	}
+
+	function refuseButton(id) {
+		$('#refuseResumeId').val(id);
+		$('#myModal').modal();
+	}
+	function acceptButton(id) {
+		$('#acceptResumeId').val(id);
+		$('#acceptModal').modal();
+	}
+	$(document).ready(function() {
+
+		$(".badge").hide();
+		$(".list-group-item").css("cursor", "pointer");
+
+		//$(".container").load("resumeList?state=new");
+
+	})
+</script>
+
+<style>
+body {
+	padding-top: 70px;
+}
+
+.left-nav {
+	float: left;
+	width: 200px;
+	height: 100%;
+	position: fixed;
+	border-right: 2px solid gray;
+}
+
+.intro_content {
+	background: #EBEBEB;
+	font-size: 12pt;
+	margin-bottom: 10px;
+}
+
+.candidate-resume {
+	background: #efefef;
+	border-bottom: 1px solid #ad2;
+	border-radius: 2px;
+	padding: 15px;
+}
+
+.resume-rest {
+	height: 200px;
+	overflow: scroll;
+	padding: 5px;
+}
+</style>
+</head>
+
+<body>
+	<div th:replace="fragments/navbar :: navbar"></div>
+	<div class="alert alert-danger" id="msg" role="alert">...</div>
+
+	<div class="container">
+		<h2>待筛选的简历：</h2>
+		<div class="candidate-resume" th:each="collection : ${collections}" th:id="'resume'+${collection.resume_id}?:'123'">
+			<div class="row" style="background: #E6E6FA; line-height: 30px; border-radius: 4px;">
+				<div class="col-xs-2">
+					<h4>
+						<span class="glyphicon glyphicon-user" aria-hidden="true"> </span><b><span th:text="'  '+${collection.name}?:'No Name Specficed'" /></b>
+					</h4>
+				</div>
+
+			</div>
+			<div class="resume-rest">
+				<div class="intro-content">
+					<p th:text="${collection.resume_info}?:'No Resume information'" />
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-10">
+					<span class="btn btn-info">More Detail...</span>
+				</div>
+				<div class="col-xs-1">
+					<span class="btn btn-success" th:onclick=" 'acceptButton(' + ${collection.process_id} + ')' ">Accept</span>
+				</div>
+				<div class="col-xs-1">
+					<span class="btn btn-danger" th:onclick=" 'refuseButton(' + ${collection.process_id} + ')' ">Reject</span>
+				</div>
+			</div>
+		</div>
+
+		<div th:replace="fragments/pages :: pages"></div>
+
+
+
+
+	</div>
+
+	<!-- Modal -->
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title" id="myModalLabel">Refuse resume</h4>
+				</div>
+				<form onsubmit="return refuse(this);" action="#" method="post">
+					<div class="modal-body">
+
+						<div class="form-group">
+							<label for="recipient-name" class="control-label">Resume Id</label> <input type="text" class="form-control" id="refuseResumeId"
+								name="refuseResumeId" value="-1" disabled="disabled" />
+						</div>
+						<div class="form-group">
+							<label for="message-text" class="control-label">reason:</label>
+							<textarea class="form-control" id="message-text" name="refuseReason"></textarea>
+						</div>
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						<button type="submit" class="btn btn-danger">Refuse</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal -->
+	<div class="modal fade" id="acceptModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title" id="AcceptModalLabel">Accept resume</h4>
+				</div>
+				<form onsubmit="return accept(this);" action="#" method="post">
+					<div class="modal-body">
+
+						<div class="form-group">
+							<label for="recipient-name" class="control-label">Resume Id</label> <input type="text" class="form-control" id="acceptResumeId"
+								name="refuseResumeId" value="-1" disabled="disabled" />
+						</div>
+						<div class="form-group">
+							<label for="message-text" class="control-label">reason:</label>
+							<textarea class="form-control" id="acceptmessage-text" name="acceptReason"></textarea>
+						</div>
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						<button type="submit" class="btn btn-success">Accept</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+
+</body>
+</html>

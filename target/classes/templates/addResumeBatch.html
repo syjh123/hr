@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+<!--*@ 李松峰  lisongfeng7788@gmail.com/li.songfeng@navercorp.com  -->
+
+<title>Recurit System</title>
+<link rel="stylesheet" type="text/css" href="css/default.css" />
+<link href="css/fileinput.css" media="all" rel="stylesheet"
+	type="text/css" />
+<link href="/webjars/bootstrap/3.3.5/css/bootstrap.min.css"
+	rel="stylesheet" media="screen" />
+
+
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="/js/html5shiv.min.js"></script>
+      <script src="/js/respond.min.js"></script>
+    <![endif]-->
+<script src="/js/laydate.js"></script>
+<script src="js/fileinput.js" type="text/javascript"></script>
+<script src="js/fileinput_locale_zh.js" type="text/javascript"></script>
+<object th:include="fragments/navbar :: head" th:remove="tag"></object>
+
+<script th:inline="javascript">
+	/*<![CDATA[*/
+	function load() {
+		
+		var status = /*[[${status}]]*/
+		var statusbox = $("#" + status);
+		statusbox.attr("class", "active");		
+	}
+	function submitBatchFile(){
+		var FileLen = $("#attachmentfile").get(0).files.length;
+		if(FileLen == 0){
+			alert("选择要上传的附件");
+			return;
+		}
+		for(i = 0; FileLen > i ;i++){
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST','/batchUploadFile',true);
+			var formData = new FormData();			
+			console.log( $("#attachmentfile").get(0).files[i]);			
+			var filename = GetExtensionFileName($("#attachmentfile").get(0).files[i].name);
+	// alert(filename);
+			formData.append('file',$("#attachmentfile").get(0).files[i]);
+			formData.append('name',  filename);
+			formData.append("channel_id",$('#search_channel').val());
+			alert($('#search_channel').val());
+	// formData.append('id', document.getElementById("id").value);
+			xhr.send(formData);
+			xhr.onreadystatechange = function(){
+	 			if (xhr.readyState === 4){
+	 				var jsondata=xhr.responseText;
+					console.log(jsondata);
+					var data = JSON.parse(jsondata);
+					console.log(data);
+					
+					var id = data["id"];
+					var resume_id = data["id"];
+					var file_path = data["resume_path"];
+
+					var tr = $("<tr></tr>");
+					tr.attr("id","attatch" + id);
+					var name = $("<td></td>");
+					name.append(file_path);
+					
+					tr.append(name);
+
+					$("#resumeBox").append(tr);
+				}
+
+	 	　　     };	    
+		}
+		alert("上传附件成功");
+	}
+	
+	// by MoreWindows (http://blog.csdn.net/MoreWindows)
+	function GetExtensionFileName(pathfilename)
+	{
+		var reg = /(\\+)/g;
+		var pfn = pathfilename.replace(reg, "#");
+		var arrpfn = pfn.split("#");
+		var fn = arrpfn[arrpfn.length - 1];
+		return fn;
+	}
+	
+	/*]]>*/
+</script>
+<script>
+</script>
+
+</head>
+
+<body onload="load()">
+	<div th:replace="fragments/navbar :: navbar(whosePage=hr)"></div>
+	<div class="container">
+		<div class="col-md-2">
+			<br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br />
+			<br />
+			<ul class="nav nav-pills nav-stacked">
+				<li id="position" role="presentation"><a
+					href="?status=position">职位相关</a></li>
+				<li id="demand" role="presentation"><a href="?status=demand">需求相关</a></li>
+				<li id="channel" role="presentation"><a href="?status=channel">渠道相关</a></li>
+				<li id="resume" role="presentation"><a href="/resume">导入简历</a></li>
+				<li id="batch" role="presentation"><a
+					href="functionpage?status=batch">批量导入</a></li>
+			</ul>
+		</div>
+		<div class="col-md-10">
+			<br /> <br /> <br /> <br /> <br /> <br /> <br /> <br /> <br />
+			<br /> <br /> <br /> <br /> <br />
+			<div class="row">
+				<div class="col-md-2">选择简历渠道：</div>
+				<div class="col-md-2">
+					<select class="form-control" id="search_channel" name="channel">
+						<option th:each="channel:${channels}" th:value="${channel.id}"
+							th:text="${channel.name}"></option>
+					</select>
+				</div>
+				<div class="col-md-2">
+					<input class="form-control" id="attachmentfile" type="file"
+						name="attachmentfile" multiple="" /><br />
+				</div>
+
+				<div class="col-md-1">
+					<button class="btn btn-default" onclick="submitBatchFile()">提交简历</button>
+				</div>
+			</div>
+			<div class="row">
+				<div class="resume-preview-all">
+					<br /> <br />
+					<h4 class="fc6699cc">本次上传简历列表</h4>
+					<table class="table" id="resumeBox">
+						
+					</table>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</body>
+</html>

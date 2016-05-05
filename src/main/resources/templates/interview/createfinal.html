@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta name="author" content="dong.yufei" />
+<meta charset="utf-8" />
+<object th:include="fragments/navbar :: head" th:remove="tag"></object>
+<script>
+	function accept(thisform) {
+		$('button').attr('disabled', "true");
+		setTimeout(function() {
+			$('button').removeAttr("disabled");//把按钮id为submit的按钮启用
+		}, 2000);
+		with (thisform) {
+			if (finalstate.value == "") {
+				warning("Please select the Final State!", 1);
+				return false;
+			}
+			$.ajax({
+				url : "/interview/ajax_createfinal",
+				data : {
+					flowId : thisform.flow_id.value,
+					finalState : thisform.finalstate.value,
+					information : thisform.information.value
+				},
+				type : "POST",
+				dataType : "json",
+				success : function(json) {
+					$('button').removeAttr("disabled");
+					with (json) {
+						if (ok) {
+							warning(msg, 0);
+							// 							location.href = "/interview/hrflowlist?state=-1";
+							self.close();
+						} else
+							warning(msg, 1);
+					}
+				},
+				error : function(xhr, status, errorThrown) {
+					warning('发送失败，请重试', 1);
+					$('button').removeAttr("disabled");
+				}
+			});
+		}
+		return false;
+	}
+</script>
+</head>
+
+<body>
+
+	<div class="alert alert-danger" id="msg" role="alert">...</div>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<h2>创建后续状态</h2>
+				<!-- 				<p th:text="'flow id: '+${flow_id}"></p> -->
+			</div>
+			<form onsubmit="return accept(this);" action="#" method="post">
+				<input type="hidden" name="flow_id" th:value="${flow_id}" />
+				<div class="col-md-12">
+					<b>后续状态:</b>
+					<div th:if="${leaderEnter}==null">
+						<div th:if="${latestState==values.STATE_INTERVIEW_ACCEPT}">
+
+							<div class="radio">
+								<label><input type="radio" id="final-state2" name="finalstate" th:value="${values.STATE_FINAL_REFUSE_OFFER}" />应聘者拒绝offer</label>
+							</div>
+							<div class="radio">
+								<label><input type="radio" id="final-state3" name="finalstate" th:value="${values.STATE_FINAL_ACCEPT}" />已发放Offer，待入职</label>
+							</div>
+						</div>
+						<div th:if="${latestState==values.STATE_FINAL_ACCEPT}">
+							<div class="radio">
+								<label><input type="radio" id="final-state4" name="finalstate" th:value="${values.STATE_FINAL_ENTER_COMPANY}" />已顺利入职 (会反应到相应部门的相应岗位的需求的已入职上)</label>
+							</div>
+						</div>
+
+
+					</div>
+					<div th:if="${leaderEnter}!=null">
+						<div class="radio">
+							<label><input type="radio" id="final-state5" name="finalstate" th:value="${values.STATE_INTERVIEW_ACCEPT}" />笔试面试通过，待发放Offer</label>
+						</div>
+						<div class="radio">
+							<label><input type="radio" id="final-state1" name="finalstate" th:value="${values.STATE_FINAL_FAIL}" />考察结果为不合格</label>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="information">附加信息</label>
+						<textarea class="form-control" id="information" name="information" rows="3"></textarea>
+					</div>
+					<button class="btn btn-success" type="submit">创建</button>
+					<input type="button" class="btn btn-default" onclick="self.close()" value="取消" />
+				</div>
+			</form>
+		</div>
+	</div>
+</body>
+</html>

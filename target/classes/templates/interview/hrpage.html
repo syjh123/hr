@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<object th:include="fragments/navbar :: head" th:remove="tag"></object>
+<meta name="author" content="dong.yufei" />
+<style>
+.important {
+	color: #ee0000;
+}
+</style>
+<script>
+	$(document).ready(function() {
+		bindMenuClick();
+	})
+	function createInterview(interviewId) {
+		window.location = "/interview/edit?interview_id=" + interviewId;
+	}
+</script>
+</head>
+
+<body>
+	<div th:replace="fragments/navbar :: navbar(whosePage=hr)"></div>
+	<div class="alert alert-danger" id="msg" role="alert">...</div>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-2">
+				<div th:replace="fragments/navbar :: hrleftbar"></div>
+			</div>
+			<div class="col-md-10">
+				<div class="row">
+					<div class="col-md-12">
+						<h3>面试</h3>
+						<p>HR需要去安排面试，然后将它编辑成已安排状态。</p>
+						<table class="table">
+							<tr>
+								<th>应聘者</th>
+								<th>部门</th>
+								<th>创建人</th>
+								<th>创建时间</th>
+								<th>安排</th>
+								<th>历史记录</th>
+								<th>编辑面试</th>
+							</tr>
+							<tr th:each="interview:${interviews}">
+								<td><a th:text="${interview[name]}" th:href="'/resumepage?id=' + ${interview[resume_id]}"></a></td>
+								<td th:text="${interview[department_name]}"></td>
+								<td th:text="( ${users[interview.create_user_id]} ? ${users[interview.create_user_id].nickname} : 'Unknown' )"></td>
+								<td th:text="${#calendars.format(interview.create_time,'yyyy-MM-dd hh:mm:ss')}"></td>
+								<td th:if="${interview.contacted}" th:text="( ${users[interview.contact_user_id]} ? ${users[interview.contact_user_id].nickname} : 'Unknown' )">已安排</td>
+								<td th:if="!${interview.contacted}" class="important">待安排</td>
+								<td><a th:href="'/resumeflow?resume_id=' + ${interview[resume_id]} + '&amp;'+'flow_id='+${interview[flow_id]}">查看</a></td>
+								<td><a th:onclick=" 'createInterview(' + ${interview.id} + ')' " href="#">编辑</a></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+
+</body>
+</html>

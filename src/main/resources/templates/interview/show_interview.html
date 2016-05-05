@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta name="author" content="dong.yufei" />
+<meta charset="utf-8" />
+<object th:include="fragments/navbar :: head" th:remove="tag"></object>
+<style>
+body {
+	padding-top: 50px;
+}
+</style>
+</head>
+
+<body>
+	<div th:replace="fragments/navbar :: navbar"></div>
+	<div class="container">
+
+		
+<!-- 		<div class="col-md-12"> -->
+		
+<!-- 				<table class="table"> -->
+<!-- 					<tr> -->
+<!-- 						<td>id</td> -->
+<!-- 						<td>interview_id</td> -->
+<!-- 						<td>interviewer_id</td> -->
+<!-- 						<td>comment</td> -->
+<!-- 						<td>create_time</td> -->
+					
+<!-- 					</tr> -->
+<!-- 					<tr th:each="ic:${ics}"> -->
+<!-- 						<td th:text="${ic.id}">1</td> -->
+<!-- 						<td th:text="${ic.interview_id}">1</td> -->
+<!-- 						<td th:text="${ic.interviewer_id}">2</td> -->
+<!-- 						<td th:text="${ic.comment}">1</td> -->
+<!-- 						<td th:text="${ic.create_time}">1</td> -->
+	
+						
+						
+<!-- 						<td><button class="btn btn-success" -->
+<!-- 								th:onclick=" 'createFinal(' + ${resume.id} + ')' ">Create Final State</button></td> -->
+<!-- 					</tr> -->
+<!-- 				</table> -->
+<!-- 			</div> -->
+
+	</div>
+
+</body>
+</html>

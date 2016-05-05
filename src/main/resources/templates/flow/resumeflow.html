@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta name="author" content="dong.yufei" />
+<meta charset="utf-8" />
+<object th:include="fragments/navbar :: head" th:remove="tag"></object>
+<object th:replace="fragments/button :: script" th:remove="tag"></object>
+</head>
+
+<body>
+	<div th:replace="fragments/navbar :: navbar"></div>
+	<div class="alert alert-danger" id="msg" role="alert">...</div>
+	<div class="container">
+	
+
+		<div class="panel panel-default">
+
+			<div class="panel-body">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h2>
+							<span class="label" style="background-color: #43b945;">简历信息</span>
+						</h2>
+
+					</div>
+					<div class="row">
+						<div class="panel-body col-md-8" style="margin: 0px 0px 0px 17px;">
+							<table class="table table-bordered ">
+								<thead>
+									<tr style="background-color: #43b945; color:white ">
+										<th class="text-center" style="width: 20%; " >姓名</th>
+										<th class="text-center" style="width: 20%;">毕业院校</th>
+										<th class="text-center" style="width: 20%;">学历</th>
+										<th class="text-center" style="width: 20%;">创建时间</th>
+										<th class="text-center" style="width: 20%;">详情预览</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td class="text-center" th:text="${resume.name}">name</td>
+										<td class="text-center" th:text="${resume.school_name}">school_name</td>
+										<td class="text-center" th:text="${resume.degree}">de</td>
+<!-- 										<td class="text-center" th:text="${resume.create_date.getYear()+1900+'-'+(resume.create_date.getMonth()+1)+'-'+ resume.create_date.getDate()+' ' -->
+<!-- 										+  resume.create_date.getHours()+':'+resume.create_date.getMinutes()}">create_date</td> -->
+
+										<td class="text-center" th:text="${resumetime}">day</td>
+										<td class="text-center">
+											<button type="button" class="btn btn-link">
+											<a th:href="'resumepage?id='+${resume.id}" >查看</a>
+											</button>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+
+						</div>
+					</div>
+				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h2>
+							<span class="label " style="background-color: #43b945;">应聘流程</span>
+						</h2>
+
+					</div>
+
+					<div class="panel-body" th:each="map:${flowList}">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<ul class="list-inline">
+									<li>
+										<h4>
+											<span class="label " style="background-color: #43b945;">部门</span>
+										</h4>
+									</li>
+									<li>
+										<h4>
+											<span class="label" style="color: #43b945;"
+												th:text="${map[department]}">department</span>
+										</h4>
+									</li>
+
+									<li>
+										<h4>
+											<span class="label " style="background-color: #43b945;">
+												职位</span>
+										</h4>
+									</li>
+									<li>
+										<h4>
+											<span class="label " style="color: #43b945;"
+												th:text="${map[position]}"></span>
+										</h4>
+									</li>
+									
+									<li><h4>
+											<span class="label  " style="background-color: #43b945;">当前状态</span>
+										</h4></li>
+									<li th:if="${map[result_type]}==null">
+										<h4>
+											<span class="label" style="color: #43b945;" >进行中</span>
+										</h4>
+									</li>
+									<li th:if="${map[result_type]}!=null">
+										<h4>
+											<span class="label" style="color: #43b945;" >已结束</span>
+										</h4>
+									</li>
+
+								</ul>
+
+							</div>
+						
+							<div class="panel-body">
+							
+								<div class="col-md-2"
+									th:each="process:${processMap[map[flow_id]]}">
+									<table class="table table-bordered">
+									
+									<thead>
+									<tr style="background-color: #43b945; color:white ">
+										<th class="text-center" style="background-color: #43b945; color:white"
+													th:text="${values.STATE_MAP_TITLE_ZH.get(process[state])}">state</th>
+									</tr>
+								</thead>
+										<tbody>
+											
+											<tr>
+												<td class="text-center" th:text="${process[user]}">sender</td>
+											</tr>
+											<tr>
+<!-- 												<td class="text-center" -->
+<!-- 													th:text="${process[create_time].getMonth()+1+'-'+ -->
+<!--   											  process[create_time].getDate()+' '+   -->
+<!--     											  process[create_time].getHours()+':'+  -->
+<!--   											  process[create_time].getMinutes()}">day</td> -->
+
+
+													<td class="text-center" th:text="${process[newtime]}">day</td>
+											</tr>
+											<tr th:if="${process.dealt}==1">
+												<td class="text-center" th:text="${values.STATE_MAP_RESULT_ZH.get(process[state])}">state+dealt</td>
+											</tr>
+											<tr th:if="${process.dealt}==0">
+												<td class="text-center" th:text="${values.STATE_MAP_UNRESULT_ZH.get(process[state])}">state+dealt</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+
+
+							</div>
+						</div>
+
+
+
+					</div>
+				</div>
+
+
+
+
+			</div>
+
+
+		</div>
+
+
+
+	</div>
+
+
+
+
+</body>
+</html>

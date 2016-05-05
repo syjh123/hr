@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf8"/>
+<meta name="author" content="zhou.jinyu" />
+<object th:include="fragments/navbar :: head"></object>
+<link href="/css/hr.css" rel="stylesheet" />
+<link href="/css/iver.css" rel="stylesheet" />
+</head>
+
+<body>
+
+<div th:replace="fragments/navbar :: navbar"></div>
+	<div class="alert alert-danger" id="msg" role="alert">...</div>
+	<input id="iv_id" th:value="${iv_id}" hidden="true" />
+	<div class="container">
+	<h3>所有面试记录</h3>
+	<table class="table table-bordered">
+		<tr >
+			<th>姓名</th>
+			<th>简历SN</th>
+			<th>应聘职位</th>
+			<th>面试时间</th>
+			<th>面试地点</th>
+			<th>流程</th>
+			<th>时长</th>
+			<th>面试官</th>
+			<th>状态</th>
+			<th>详情</th>
+		</tr>
+		<tr th:each="iv : ${ivs}">
+			<td th:text="${iv[name]}"></td>
+			<td th:text="${iv[sn]}"></td>
+			<td th:text="${iv[pos]}"></td>
+			<td th:text="${iv[start_time]}"></td>
+			<td th:text="${iv[place]}"></td>
+			<td th:text="${iv[seq]}"></td>
+			<td th:text="${iv[iv_len]}"></td>
+			<td th:utext="${iv[ivers]}"></td>
+			<td th:text="${iv[state]}"></td>
+			<td><a th:href="@{'/iver/detail_record?iv_id='+${iv[iv_id]}}">查看</a></td>
+		</tr>
+	</table>
+	</div>
+</body>
+</html>

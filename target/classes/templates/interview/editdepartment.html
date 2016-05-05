@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<link href="/css/zTreeStyle.css" rel="stylesheet" />
+<meta charset="utf-8" />
+<object th:include="fragments/navbar :: head" th:remove="tag"></object>
+<script src="/js/laydate.js"></script>
+<link href="/css/hr.css" rel="stylesheet" />
+<script src="/js/ztree.js"></script>
+<style>
+ul.ztree {
+	margin-top: 10px;
+	border: 1px solid #617775;
+	background: #fff;
+	height: 360px;
+	overflow-y: scroll;
+	overflow-x: auto;
+}
+
+ul, li {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: 0;
+	font-weight: inherit;
+	font-style: inherit;
+	font-size: 100%;
+	font-family: inherit;
+	vertical-align: baseline;
+}
+
+div#rMenu {
+	position: absolute;
+	visibility: hidden;
+	top: 0;
+	background-color: #555;
+	text-align: left;
+	padding: 2px;
+}
+
+div#rMenu ul li {
+	margin: 1px 0;
+	padding: 0 5px;
+	cursor: pointer;
+	list-style: none outside none;
+	background-color: #DFDFDF;
+}
+
+ul.info ul li {
+	padding: 10px;
+}
+</style>
+<script th:inline="javascript">
+	/*<![CDATA[*/
+	var MoveTest = {
+		prevTree : function(treeId, treeNodes, targetNode) {
+			return !targetNode.isParent;
+		},
+		nextTree : function(treeId, treeNodes, targetNode) {
+			return !targetNode.isParent;
+		},
+		innerTree : function(treeId, treeNodes, targetNode) {
+			return targetNode != null && targetNode.isParent;
+		}
+	}
+
+	var zTreeObj;
+	var setting = {
+		edit : {
+			enable : true,
+			showRemoveBtn : false,
+			showRenameBtn : false,
+			drag : {
+				prev : MoveTest.prevTree,
+				next : MoveTest.nextTree,
+				inner : MoveTest.innerTree
+			}
+		},
+		data : {
+			simpleData : {
+				enable : true
+			},
+			keep : {
+				parent : true,
+				leaf : true
+			}
+		},
+		callback : {
+			onRightClick : rightClick,
+			beforeDrag : beforeDrag
+		}
+	};
+	function rightClick(event, treeId, treeNode) {
+		var zTree = zTreeObj;
+		if (!treeNode && event.target.tagName.toLowerCase() != "button" && $(event.target).parents("a").length == 0) {
+			zTree.cancelSelectedNode();
+			showRMenu("root", event.clientX, event.clientY);
+		} else if (treeNode && !treeNode.noR && treeNode.isParent) {
+			zTree.selectNode(treeNode);
+			showRMenu("node", event.clientX, event.clientY);
+		}
+	}
+
+	function beforeDrag(treeId, treeNodes) {
+		return !treeNodes[0].isParent;
+	};
+
+	function showRMenu(type, x, y) {
+		$("#rMenu ul").show();
+		if (type == "root") {
+			$("#m_del").hide();
+			$("#m_add").show();
+			$("#m_rename").hide();
+		} else {
+			$("#m_del").show();
+			$("#m_rename").show();
+			$("#m_add").hide();
+		}
+		rMenu = $("#rMenu");
+		rMenu.css({
+			"top" : y + "px",
+			"left" : x + "px",
+			"visibility" : "visible"
+		});
+
+		$("body").bind("mousedown", onBodyMouseDown);
+	}
+
+	function hideRMenu() {
+		rMenu = $("#rMenu");
+		if (rMenu)
+			rMenu.css({
+				"visibility" : "hidden"
+			});
+		$("body").unbind("mousedown", onBodyMouseDown);
+	}
+	function onBodyMouseDown(event) {
+		if (!(event.target.id == "rMenu" || $(event.target).parents("#rMenu").length > 0)) {
+			rMenu = $("#rMenu");
+			rMenu.css({
+				"visibility" : "hidden"
+			});
+		}
+	}
+
+	function addTreeNode() {
+		hideRMenu();
+		departmax++;
+		var newNode = {
+			id : departmax,
+			name : "New Department " + departmax,
+			isParent : true,
+			drag : false
+		};
+		var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+		var newnode = zTree.addNodes(null, newNode);
+		zTree.editName(newnode[0]);
+	}
+	function removeTreeNode() {
+		hideRMenu();
+		var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+		var nodes = zTree.getSelectedNodes();
+		if (nodes && nodes.length > 0) {
+			if (nodes[0].children && nodes[0].children.length > 0) {
+				var msg = "只能删除空的部门！";
+				alert(msg);
+			} else if (!nodes[0].isParent) {
+				alert("无法删除，这不是部门");
+			} else {
+				zTree.removeNode(nodes[0]);
+			}
+		}
+	}
+
+	function renameTreeNode() {
+		hideRMenu();
+		var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+		var nodes = zTree.getSelectedNodes();
+		if (nodes && nodes.length > 0) {
+			if (!nodes[0].isParent) {
+				alert("Cant delete department");
+			} else {
+				zTree.editName(nodes[0]);
+			}
+		}
+	}
+
+	var zNodes = new Array();
+	var users = /*[[${users}]]*/null;
+	var departs = /*[[${departs}]]*/null;
+	var leaderSet = /*[[${leaderSet}]]*/null;
+	var departmax = 0;
+	console.log(leaderSet);
+	for ( var i in departs) {
+		//console.log(departs[i]);
+		var param = {
+			id : departs[i].id,
+			isParent : true,
+			name : departs[i].name,
+			drag : false
+		};
+		console.log(param);
+		zNodes.push(param);
+		if (departs[i].id > departmax)
+			departmax = departs[i].id;
+	}
+	var userStart = departmax + 100000;
+	for ( var i in users) {
+		//console.log(users[i]);
+		var name = users[i].username + ' ' + users[i].nickname;
+		var icon = null;
+		if ($.inArray(users[i].username, leaderSet) >= 0) {
+			icon = "/css/img/diy/3.png";
+		}
+		var param = {
+			id : userStart + users[i].id,
+			pId : users[i].department_id,
+			name : name,
+			icon : icon
+		};
+		console.log(param);
+		zNodes.push(param);
+	}
+
+	$(document).ready(function() {
+		zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, zNodes);
+	});
+	/*]]>*/
+</script>
+<script>
+	function submit() {
+		var nodes = zTreeObj.getNodes();
+		var users = new Object();
+		var departs = new Object();
+		console.log(nodes);
+		for ( var i in nodes) {
+			departs[nodes[i].id] = nodes[i].name;
+			var childs = nodes[i].children;
+			for ( var j in childs) {
+				users[childs[j].id - userStart] = childs[j].pId;
+			}
+		}
+		$('button').attr('disabled', "true");
+		setTimeout(function() {
+			$('button').removeAttr("disabled");//把按钮id为submit的按钮启用
+		}, 5000);
+		var param = {
+			usersString : JSON.stringify(users),
+			departsString : JSON.stringify(departs)
+		};
+		console.log(param);
+		$.ajax({
+			url : "/interview/ajax_editdepartment",
+			data : param,
+			type : "POST",
+			dataType : "json",
+			success : function(json) {
+				$('button').removeAttr("disabled");
+				with (json) {
+					if (ok) {
+						warning(msg, 0);
+						location.href = "/interview/department";
+					} else
+						warning(msg, 1);
+				}
+			},
+			error : function(xhr, status, errorThrown) {
+				warning('post error , please retry', 1);
+				$('button').removeAttr("disabled");
+			}
+		});
+		return false;
+	}
+</script>
+</head>
+
+<body>
+	<div th:replace="fragments/navbar :: navbar"></div>
+	<div class="alert alert-danger" id="msg" role="alert">...</div>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<h2>用户部门管理</h2>
+			</div>
+			<div class="interview-block">
+				<div class="col-md-4">
+					<ul id="treeDemo" class="ztree"></ul>
+					<br />
+				</div>
+				<div class="col-md-8">
+					<ul class="info">
+						<li class="title"><h2>简介</h2>
+							<ul class="list">
+								<li>本系统的用户部门是独立的，需要HR或者部门长手动管理。</li>
+								<li><b>新建部门: </b>右键点击左侧框中的空白区域，选择“新建部门”按钮。</li>
+								<li><b>编辑部门: </b>右键点击一个部门, 点击“重命名”按钮。</li>
+								<li><b>移动用户: </b>拖动一个用户到一个部门中。</li>
+								<li class="highlight_red">所有操作完成后，点击下方的“提交”按钮来提交变更。</li>
+							</ul></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<button class="btn btn-success" type="submit" onClick="submit()">提交</button>
+			</div>
+		</div>
+	</div>
+	<div id="rMenu">
+		<ul class="rmenu">
+			<li id="m_add" class="rmenu" onclick="addTreeNode();">新建部门</li>
+			<li id="m_rename" class="rmenu" onclick="renameTreeNode();">重命名</li>
+			<li id="m_del" class="rmenu" onclick="removeTreeNode();">删除部门</li>
+		</ul>
+	</div>
+</body>
+</html>

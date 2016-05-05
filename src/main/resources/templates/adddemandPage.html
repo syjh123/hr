@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<object th:include="fragments/navbar :: head"></object>
+<link href="/css/hr.css" rel="stylesheet" />
+<script src="/js/laydate.js"></script>
+<script src="js/fileinput.js" type="text/javascript"></script>
+<script src="js/fileinput_locale_zh.js" type="text/javascript"></script>
+<object th:include="fragments/navbar :: head" th:remove="tag"></object>
+
+<script th:inline="javascript">
+	/*<![CDATA[*/
+	function load() {
+		
+		var status = /*[[${status}]]*/
+		var statusbox = $("#" + status);
+		statusbox.css("font-weight", "bolder");		
+	}
+	/*]]>*/
+</script>
+<script>
+	$(document).ready(function() {
+		var url = "/getAllNeed";
+		$.ajax({
+			type : "POST",
+			url : url,
+			success : mainfunc
+		});
+	});
+	
+	
+	function mainfunction(date)
+	{
+		
+		console.log("-------我是mainfunction------");
+		var url = "/getAllNeed";
+		$.ajax({
+			type : "POST",
+			url : url,
+			success : mainfunc
+		});
+		
+		
+	}
+	
+	function mainfunc(date)
+	{
+		
+		console.log("-------我是mainfunc------");
+		 
+		if (date == null || date.length == 0) {
+			alert("操作有误！");
+			location.reload();
+		}
+		$("#demandBox").empty();
+		var department = date["department"];
+		var need = date["need"];
+		var position = date["position"];
+		var positiond = date["positiond"];
+		var length=positiond.length;
+		console.log("-----"+length);
+		
+		
+		var resumebox = $("#demandBox");
+		for (i = 0; need.length > i; i++) {
+			var rsj = need[i];
+			var tr = $("<tr></tr>");
+			tr.attr("id", "demandbox" + rsj["id"]);
+
+			var dpt = $("<td></td>");
+			dpt.append(department[rsj["department_id"]]);
+			tr.append(dpt);
+			
+			var a = $("<a></a>");
+			a.attr("title","岗位描述");
+			a.attr("data-toggle","popover");
+			a.attr("data-trigger","hover");                             
+			a.attr("data-content",positiond[rsj["position"]]);
+			console.log("-----"+positiond[rsj["position"]]);
+			a.append(position[rsj["position"]]);
+
+			var pzs = $("<td></td>");
+ // 			pzs.append((position[rsj["position"]]));
+			
+			pzs.append(a);
+ 			tr.append(pzs);
+
+			var need_amount = $("<td></td>");
+			need_amount.append(rsj["need_amount"]);
+			tr.append(need_amount);
+			
+			var apply_amount = $("<td></td>");
+			apply_amount.append(rsj["apply_amount"]);
+			tr.append(apply_amount);
+			
+			var amount = $("<td></td>");
+			amount.append(rsj["need_amount"]-rsj["apply_amount"]);
+			tr.append(amount);
+			
+			resumebox.append(tr);
+			 
+		}
+		 $('[data-toggle="popover"]').popover(); 
+
+	}
+	
+	function increasedemand(){
+		if($("#inpositionDemands").val() == null ||$("#inpositionDemands").val().length == 0){
+			alert("输入内容");
+			return;
+		}else{
+			if(isNaN($("#inpositionDemands").val())){
+				alert("输入有效数字");
+				return;
+			}
+			var url = "/getAllNeed";
+			var departmentid = $("#indepartmengList").val();
+			var positionid = $("#inpositionList").val();
+			var demand = $("#inpositionDemands").val();
+			$.ajax({
+				type : "POST",
+				url : url,
+				data:{
+					"need_amount":demand,
+					"departmentid":departmentid,
+					"positionid":positionid
+				},
+				success : mainfunction
+			}); 
+		}
+	}
+	function decreasedemand(){
+		if($("#depositionDemands").val() == null ||$("#depositionDemands").val().length == 0){
+			alert("输入内容");
+			return;
+		}else{
+			if(isNaN($("#depositionDemands").val())){
+				alert("输入有效数字");
+				return;
+			}
+			var url = "/getAllNeed";
+			var departmentid = $("#dedepartmengList").val();
+			var positionid = $("#depositionList").val();
+			var demand = "-"+$("#depositionDemands").val();
+//			alert(departmentid+" "+positionid +" "+demand);
+			$.ajax({
+				type : "POST",
+				url : url,
+				data:{
+					"need_amount":demand,
+					"departmentid":departmentid,
+					"positionid":positionid
+				},
+				success : mainfunction
+			}); 
+		}
+	}
+	
+	function hidedemand(thisform){
+		$('button').attr('disabled', "true");
+		setTimeout(function() {
+			$('button').removeAttr("disabled");//把按钮id为submit的按钮启用
+		}, 2000);
+
+			var url = "/getAllNeed";
+			var departmentid = $("#dedepartmengList").val();
+			var positionid = $("#depositionList").val();
+			var demand = "-"+$("#depositionDemands").val();
+//			alert(departmentid+" "+positionid +" "+demand);
+			$.ajax({
+				type : "POST",
+				url : url,
+				data:{
+					"need_amount":demand,
+					"departmentid":departmentid,
+					"positionid":positionid
+				},
+				success : mainfunction
+			}); 
+		
+	}
+</script>
+
+</head>
+
+<body onload="load()">
+	<div th:replace="fragments/navbar :: navbar(whosePage=hr)"></div>
+	<div class="container">
+		<div class="col-md-2">
+			<table class="table table-bordered">
+				<tr>
+					<td>
+						<ul class="nav">
+							<li id="position" role="presentation"><a href="?status=position">职位相关</a></li>
+							<li id="demand" role="presentation"><a href="?status=demand">需求相关</a></li>
+							<li id="channel" role="presentation"><a href="?status=channel">渠道相关</a></li>
+
+
+						</ul>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div class="col-md-10">
+			<div class="row">
+
+				<form class="form" action="/getAllNeed">
+					<div class="col-md-10  col-md-offset-2">
+						<div class="row">
+							<div class="col-md-2">
+								<select id="indepartmengList" class="form-control" name="departmentid">
+									<option th:each="department:${departments}" th:value="${department.id}" th:text="${department.name}"></option>
+								</select>
+							</div>
+							<div class="col-md-3">
+								<select id="inpositionList" class="form-control" name="positionid">
+									<option th:each="position:${positions}" th:value="${position.id}" th:text="${position.name}"></option>
+								</select>
+							</div>
+							<div class="col-md-2">
+								<input id="inpositionDemands" type="text" name="need_amount" class="form-control" value="" placeholder="需求量" />
+							</div>
+							<div class="col-md-2">
+								<button type="button" onclick="increasedemand()" class="btn btn-primary">增加需求</button>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+			<br />
+
+			<div class="row">
+				<form class="form">
+					<div class="col-md-10  col-md-offset-2">
+						<div class="row">
+							<div class="col-md-2">
+								<select id="dedepartmengList" class="form-control" name="departmentid">
+									<option th:each="department:${departments}" th:value="${department.id}" th:text="${department.name}"></option>
+								</select>
+							</div>
+							<div class="col-md-3">
+								<select id="depositionList" class="form-control" name="positionid">
+									<option th:each="position:${positions}" th:value="${position.id}" th:text="${position.name}"></option>
+								</select>
+							</div>
+							<div class="col-md-2">
+								<input id="depositionDemands" type="text" name="need_amount" class="form-control" value="" placeholder="需求量" />
+							</div>
+							<div class="col-md-2">
+								<button type="button" onclick="decreasedemand()" class="btn btn-primary">减少需求</button>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+			<br />
+
+<!-- 			<div class="row"> -->
+<!-- 				<form class="form" onsubmit="return hidedemand(this);" action="#" method="post"> -->
+<!-- 					<div class="col-md-10  col-md-offset-2"> -->
+<!-- 						<div class="row"> -->
+<!-- 							<div class="col-md-2"> -->
+<!-- 								<select id="hidepartmengList" class="form-control" name="departmentid"> -->
+<!-- 									<option th:each="department:${departments}" th:value="${department.id}" th:text="${department.name}"></option> -->
+<!-- 								</select> -->
+<!-- 							</div> -->
+<!-- 							<div class="col-md-3"> -->
+<!-- 								<select id="hipositionList" class="form-control" name="positionid"> -->
+<!-- 									<option th:each="position:${positions}" th:value="${position.id}" th:text="${position.name}"></option> -->
+<!-- 								</select> -->
+<!-- 							</div> -->
+<!-- 							<div class="col-md-2"></div> -->
+<!-- 							<div class="col-md-2"> -->
+<!-- 								<button type="submit" class="btn btn-primary">隐藏需求</button> -->
+<!-- 							</div> -->
+<!-- 						</div> -->
+<!-- 					</div> -->
+<!-- 				</form> -->
+<!-- 			</div> -->
+
+
+			<br /> <br />
+			<div class="row">
+				<div class="col-md-12">
+					<table class="table table-hover">
+						<tr>
+							<th>部门</th>
+							<th>岗位</th>
+							<!-- 						<th>岗位要求</th> -->
+							<th>年度需求量</th>
+							<th>已入职</th>
+							<th>剩余需求</th>
+
+						</tr>
+						<tbody id="demandBox">
+						</tbody>
+					</table>
+					<br clear="all" />
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

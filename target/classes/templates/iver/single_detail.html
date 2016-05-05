@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf8"/>
+<meta name="author" content="zhou.jinyu" />
+<object th:include="fragments/navbar :: head"></object>
+<link href="/css/hr.css" rel="stylesheet" />
+<link href="/css/iver.css" rel="stylesheet" />
+</head>
+
+<body>
+	<table class="table table-bordered">
+		<tr >
+			<th>姓名</th>
+			<th>性别</th>
+			<th>年龄</th>
+			<th>毕业学校</th>
+			<th>学历</th>
+			<th>原工作单位</th>
+			<th>工作年限</th>
+			<th>应聘职位</th>
+			<th>面试时间</th>
+			<th>面试地点</th>
+			<th>流程</th>
+			<th>时长</th>
+			<th>备注</th>
+			<th>状态</th>
+		</tr>
+		<tr>
+			<td > <a th:href="@{/resumepage?id=}+${iv.resume_id}" th:text="${iv[name]}"></a></td>
+			<td th:text="${iv[gender]}"></td>
+			<td th:text="${iv[age]}"></td>
+			<td th:text="${iv[school]}"></td>
+			<td th:text="${iv[degree]}"></td>
+			<td th:text="${iv[pre_com]}"></td>
+			<td th:text="${iv[work_len]}"></td>
+			<td th:text="${iv[pos]}"></td>
+			<td th:text="${iv[time]}"></td>
+			<td th:text="${iv[place]}"></td>
+			<td th:text="${iv[seq]}"></td>
+			<td th:text="${iv[len]}"></td>
+			<td th:text="${iv[bak_info]}"></td>
+			<td th:text="${iv[state]}"></td>
+			
+		</tr>
+	</table>
+</body>
+</html>

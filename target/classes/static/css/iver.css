@@ -1,0 +1,27 @@
+a {
+	cursor: pointer; hover : none;
+	text-decoration: none;
+	hover: none;
+}
+
+
+.pagination>li>a, .pagination>li>span {
+    position: relative;
+    float: left;
+    padding: 6px 12px;
+    margin-left: -1px;
+    line-height: 1.42857143;
+    color: #43b945;
+    text-decoration: none;
+    background-color: #fff;
+    border: 1px solid #ddd;
+}
+
+.pagination>li > a.cur {
+    background-color:#43b945 !important;
+    color: white !important;
+    
+}
+
+
+

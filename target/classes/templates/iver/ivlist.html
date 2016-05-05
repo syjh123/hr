@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf8"/>
+<meta name="author" content="zhou.jinyu" />
+<object th:include="fragments/navbar :: head"></object>
+<link href="/css/hr.css" rel="stylesheet" />
+<link href="/css/iver.css" rel="stylesheet" />
+<script>
+	$(document).ready(function(){
+		$(".pagination li a").click(function(){
+			var url = $(this).attr("href");
+			console.log("goto "+url);
+			$("#iv_content").load(url);
+			return false;
+		})
+		$("label").each(function(){
+			if($(this).hasClass("hidden")) {
+				$(this).attr("hidden","hidden");
+			}
+		})
+	})
+</script>
+<style type="text/css">
+.new-attention {
+	color:red;
+	position: relative;
+	right:20px;
+}
+
+</style>
+</head>
+
+<body id="ivlist_body">
+<div class="row" style="height:600px;">
+	<table class="table table-bordered" >
+		<tr >
+			
+			<th>姓名</th>
+			<th>性别</th>
+			<th>年龄</th>
+			<th>毕业学校</th>
+			<th>学历</th>
+			<th>原工作单位</th>
+			<th>工作年限</th>
+			<th>应聘职位</th>
+			
+			<th>面试时间</th>
+			<th>面试地点</th>
+			<th>流程</th>
+			<th>时长</th>
+			<th>备注</th>
+			<th>详情</th>
+		</tr>
+		<tr th:each="iv : ${ivs}">
+			
+			<td><label th:class="${iv[is_new]}==true?'new-attention':'hidden'">new</label><a th:href="@{/resumepage?id=}+${iv[resume_id]}" th:text="${iv[name]}"></a></td>
+			<td th:text="${iv[gender]}"></td>
+			<td th:text="${iv[age]}"></td>
+			<td th:text="${iv[school]}"></td>
+			<td th:text="${iv[degree]}"></td>
+			<td th:text="${iv[pre_com]}"></td>
+			<td th:text="${iv[work_len]}"></td>
+			<td th:text="${iv[pos]}"></td>
+			<td th:text="${iv[time]}"></td>
+			<td th:text="${iv[place]}"></td>
+			<td th:text="${iv[seq]}"></td>
+			<td th:text="${iv[len]}"></td>
+			<td th:text="${iv[bak_info]}"></td>
+			<td ><a th:href="@{iver/detail_record?iv_id=}+${iv[id]}" >查看</a></td>
+		</tr>
+		
+	</table>
+</div>
+	
+	<div th:replace="fragments/pages :: pages"></div>
+	
+</body>
+</html>

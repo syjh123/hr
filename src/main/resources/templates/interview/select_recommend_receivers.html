@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<object th:include="fragments/navbar :: head" th:remove="tag"></object>
+<meta name="author" content="dong.yufei" />
+<link href="/css/zTreeStyle.css" rel="stylesheet" />
+<script src="/js/ztree.js"></script>
+<script th:inline="javascript">
+	/*<![CDATA[*/
+	var selects = new Array();
+
+	var zTreeObj;
+	var setting = {
+		check : {
+			enable : true
+		},
+		data : {
+			simpleData : {
+				enable : true
+			}
+		},
+		callback : {
+			onCheck : onCheck
+		}
+	};
+	function onCheck(e, treeId, treeNode) {
+		console.log(treeNode);
+		var nodes = zTreeObj.getCheckedNodes(true);
+		var s = "";
+		selects = new Array();
+		for ( var i in nodes) {
+			s += nodes[i].name + "<br/>";
+			selects.push(nodes[i].id);
+		}
+		$('#testp').html("<b>Recommend To (" + selects.length + "):</b><br/>" + s);
+	}
+	var zNodes = new Array();
+	var users = /*[[${users}]]*/null;
+	var departs = /*[[${departs}]]*/null;
+	var leaderSet = /*[[${leaderSet}]]*/null;
+	var departmax = 0;
+	console.log(leaderSet);
+	for ( var i in departs) {
+		//console.log(departs[i]);
+		var param = {
+			id : departs[i].id,
+			isParent : true,
+			name : "[" + departs[i].id + "]" + departs[i].name
+		};
+		console.log(param);
+		zNodes.push(param);
+		if (departs[i].id > departmax)
+			departmax = departs[i].id;
+	}
+	for ( var i in users) {
+		//console.log(users[i]);
+		var name = users[i].username + ' ' + users[i].nickname;
+		var icon = null;
+		if ($.inArray(users[i].username, leaderSet) >= 0) {
+			icon = "/css/img/diy/3.png";
+		}
+		var param = {
+			id : departmax + users[i].id,
+			pId : users[i].department_id,
+			name : name,
+			nocheck : true,
+			icon : icon
+		};
+		console.log(param);
+		zNodes.push(param);
+	}
+
+	$(document).ready(function() {
+		zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, zNodes);
+	});
+	var theresume_ids = /*[[${resume_ids}]]*/null;
+	/*]]>*/
+</script>
+<script>
+	console.log(theresume_ids);
+	function accept(thisform) {
+		$('button').attr('disabled', "true");
+		setTimeout(function() {
+			$('button').removeAttr("disabled");//把按钮id为submit的按钮启用
+		}, 5000);
+		var param = {
+			resume_ids : JSON.stringify(theresume_ids),
+			information : thisform.information.value,
+			selectsString : JSON.stringify(selects),
+			positionId : thisform.positionId.value
+		};
+		console.log(param);
+		$.ajax({
+			url : "/interview/ajax_recommend",
+			data : param,
+			type : "POST",
+			dataType : "json",
+			success : function(json) {
+				$('button').removeAttr("disabled");
+				with (json) {
+					if (ok) {
+						warning(msg, 0);
+						location.href = "/hr";
+					} else
+						warning(msg, 1);
+				}
+			},
+			error : function(xhr, status, errorThrown) {
+				warning('post error , please retry', 1);
+				$('button').removeAttr("disabled");
+			}
+		});
+		return false;
+	}
+</script>
+</head>
+
+<body>
+	<div th:replace="fragments/navbar :: navbar(whosePage=hr)"></div>
+	<div class="alert alert-danger" id="msg" role="alert">...</div>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<h2>选择推荐目标</h2>
+				<p>选择一些部门来推荐简历。这将为每个被选部门建立新的推荐流程。</p>
+				<p>
+					<span th:each="resume_id : ${resume_ids}"><a th:text="'resume '+ ${resume_id}"></a> </span>
+				</p>
+			</div>
+		</div>
+		<form onsubmit="return accept(this);" action="#" method="post">
+			<div class="form-group">
+				<div class="row">
+					<div class="col-md-6">
+						<p>选择推荐职位</p>
+						<select class="form-control" name="positionId">
+							<option th:each="position : ${positions}" th:text="'[' + ${position.id} + ']' + ${position.name}" th:value="${position.id}">1</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="form-group">
+					<div class="col-md-6">
+						<p>选择接收部门</p>
+						<ul id="treeDemo" class="ztree"></ul>
+					</div>
+					<div class="col-md-6">
+						<p id="testp"></p>
+					</div>
+				</div>
+				<div class="col-md-12">
+					<div class="form-group">
+						<label for="information">附加信息</label>
+						<textarea class="form-control" id="information" name="information" rows="3"></textarea>
+					</div>
+					<button class="btn btn-success" type="submit">推荐</button>
+					<input type="button" class="btn btn-default" onclick="location.href='/hr';" value="取消" />
+
+				</div>
+			</div>
+		</form>
+	</div>
+
+
+</body>
+
+</html>

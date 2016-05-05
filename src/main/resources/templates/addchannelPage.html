@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<object th:include="fragments/navbar :: head"></object>
+<link href="/css/hr.css" rel="stylesheet" />
+
+<script src="/webjars/jquery/1.11.3/jquery.min.js"></script>
+
+<script th:inline="javascript">
+	/*<![CDATA[*/
+	function load() {
+		
+		var status = /*[[${status}]]*/
+		var statusbox = $("#" + status);
+		statusbox.css("font-weight", "bolder");		
+	}
+	/*]]>*/
+</script>
+
+<script>
+        function addChannel(){
+
+        	var url = "/submitChannel";
+        	var name = $("#channelInsertName").val();
+	        var channel_info = $("#channelInsertChannel_info").val();
+	        
+	        
+	        if(name == null ||name == ""){
+				alert("输入渠道名称");
+				return;
+			}
+			
+        	parms={
+        		name:name,
+        		channel_info:channel_info
+        	}
+			$.ajax({
+				  type: 'POST',
+				  url: url,
+				  data: parms,
+				  success: refresh,
+				  async:false
+			});
+        }
+        
+        function deleteChannel(){
+        	var url = "/deleteChannel";
+        	var id = $("#channelDeleteId").val();
+        	parms={
+        		id:id
+        	}
+			$.ajax({
+				  type: 'POST',
+				  url: url,
+				  data: parms,
+				  success: refresh,
+				  async:false
+			});
+        }
+        
+        function updateChannel(){
+        	var url = "/updateChannel";
+        	var id = $("#channelUpdateId").val();
+        	var name = $("#channelUpdateName").val();
+        	var channel_info = $("#channelUpdateChannel_info").val();
+
+        	parms={
+        		id:id,
+        		name:name,
+        		channel_info:channel_info
+        	}
+			$.ajax({
+				  type: 'POST',
+				  url: url,
+				  data: parms,
+				  success: refresh,
+				  async:false
+			});
+        }
+
+
+
+		function refresh(){
+			location.reload();   
+		}
+		
+		function changefunc(){
+			var url = "/getChannel";
+			var value = $("#channelUpdateId").val();
+			parms ={
+				id:value	
+			}
+			$.ajax({
+				  type: 'POST',
+				  url: url,
+				  data: parms,
+				  success: setPositionBox,
+				  async:false
+			});			
+		}
+		function setPositionBox(data){
+			var channel = data["channel"];
+			$("#channelUpdateName").val(channel["name"]);
+			$("#channelUpdateChannel_info").val(channel["channel_info"]);
+			
+			
+			console.log(channel["channel_info"]);  
+		}
+		
+		
+		function changefunc(){
+			var url = "/getChannel";
+			var value = $("#channelUpdateId").val();
+			parms ={
+				id:value	
+			}
+			
+			console.log(value);
+			$.ajax({
+				  type: 'POST',
+				  url: url,
+				  data: parms,
+				  success: setPositionBox,
+				  async:false
+			});			
+		}
+		
+		
+		
+</script>
+
+</head>
+
+<body onload="load()">
+	<div th:replace="fragments/navbar :: navbar(whosePage=hr)"></div>
+	<div class="container">
+		<div class="col-md-2">
+			<table class="table table-bordered">
+				<tr>
+					<td>
+						<ul class="nav">
+							<li id="position" role="presentation"><a
+								href="?status=position">职位相关</a></li>
+							<li id="demand" role="presentation"><a href="?status=demand">需求相关</a></li>
+							<li id="channel" role="presentation"><a
+								href="?status=channel">渠道相关</a></li>
+						</ul>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div class="col-md-2">
+
+			<table class="table table-striped">
+				<tr>
+					<th>职位名称：</th>
+				</tr>
+				<div id="channelList">
+					<tr th:each="channel:${channelList}">
+						<td th:value="${channel.id}" th:text="${channel.name}"></td>
+					</tr>
+				</div>
+
+			</table>
+		</div>
+		<div class="col-md-7">
+			<div class="row">
+
+
+				<div class="row">
+					<div class="col-md-9 col-md-offset-0">
+						<div class="row">
+							<div class="col-md-3">
+								<h5>要添加的渠道:</h5>
+							</div>
+							<div class="col-md-9">
+								<div class="form-group">
+									<input type="text" class="form-control" id="channelInsertName"
+										placeholder="position name" />
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-9 col-md-offset-0">
+						<div class="row">
+							<div class="col-md-12">
+								<div class="form-group">
+									<label for="exampleInputEmail2">渠道email：</label> <input
+										type="email" class="form-control"
+										id="channelInsertChannel_info"
+										placeholder="jane.doe@example.com" />
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-9 col-md-offset-0">
+						<div class="row">
+							<div class="col-md-12">
+								<button type="submit" onclick="addChannel()"
+									class="btn btn-default btn-block">增加渠道</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<br /> <br /> <br />
+				<div class="row">
+					<div class="col-md-9 col-md-offset-0">
+						<div class="row">
+							<div class="col-md-2">
+								<h5>选择渠道</h5>
+							</div>
+							<div class="col-md-10">
+								<select id="channelDeleteId" class="form-control">
+									<option th:each="channel:${channelList}"
+										th:value="${channel.id}" th:text="${channel.name}"></option>
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+				<br />
+				<div class="row">
+					<div class="col-md-9 col-md-offset-0">
+						<div class="row">
+							<div class="col-md-12">
+								<button type="submit" onclick="deleteChannel()"
+									class="btn btn-default btn-block">删除渠道</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<br /> <br /> <br />
+				<div class="row">
+					<div class="col-md-9 col-md-offset-0">
+						<div class="row">
+							<div class="col-md-2">
+								<h5>修改渠道</h5>
+							</div>
+
+							<div class="col-md-4">
+								<select id="channelUpdateId" class="form-control"
+									name="textposition" onchange="changefunc()">
+									<option th:each="channel:${channelList}"
+										th:value="${channel.id}" th:text="${channel.name}"></option>
+								</select>
+							</div>
+<!-- 							<div class="col-md-1"> -->
+<!-- 								<h5>改为</h5> -->
+<!-- 							</div> -->
+<!-- 							<div class="col-md-5"> -->
+<!-- 								<input id="channelUpdateName" type="text" class="form-control"></input> -->
+<!-- 							</div> -->
+						</div>
+<!-- 						<div class="row"> -->
+<!-- 							<div class="col-md-12"> -->
+<!-- 								<div class="form-group"> -->
+<!-- 									<label for="exampleInputEmail2">原渠道email：</label> <input -->
+<!-- 										type="email" class="form-control" -->
+<!-- 										id="channelUpdateChannel_info_pre" -->
+<!-- 										placeholder="jane.doe@example.com" /> -->
+<!-- 								</div> -->
+<!-- 							</div> -->
+<!-- 						</div> -->
+					</div>
+				</div>
+				<br />
+				<div class="row">
+					<div class="col-md-9 col-md-offset-0">
+						<div class="row">
+							<div class="col-md-12">
+								<div class="form-group">
+									<label for="exampleInputEmail2">修改渠道email：</label> <input
+										type="email" class="form-control"
+										id="channelUpdateChannel_info"
+										placeholder="jane.doe@example.com" 
+										
+										 />
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12">
+								<button type="submit" onclick="updateChannel()"
+									class="btn btn-default btn-block">修改渠道信息</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<br /> <br /> <br />
+			<div class="row"></div>
+		</div>
+	</div>
+
+</body>
+</html>

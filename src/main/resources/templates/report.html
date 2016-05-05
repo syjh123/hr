@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta name="author" content="dong.yufei" />
+<meta charset="utf-8" />
+<object th:include="fragments/navbar :: head" th:remove="tag"></object>
+<object th:replace="fragments/button :: script" th:remove="tag"></object>
+<script src="/js/laydate.js"></script>
+
+
+</head>
+
+<body>
+	<div th:replace="fragments/navbar :: navbar"></div>
+	<div class="alert alert-danger" id="msg" role="alert">...</div>
+	<div class="container">
+	<form action="/report" >
+
+		<div class="panel panel-default">
+
+			<div class="panel-body">
+				<div class="panel panel-default ">
+				
+					<ul class=" list-inline">
+
+
+						<li><h4>
+							<span class="label background-color" >开始日期</span>
+						</h4> 
+						</li>
+						<li >
+						<input  class="laydate-icon" id="start"  name= "start"  th:value="${startday} "
+							style="width: 200px; margin-right: 10px;"/>
+							
+							</li>
+						<li><h4>
+							<span class="label background-color">结束日期</span>
+						</h4> </li>
+						<li >
+						<input class="laydate-icon" id="end"  name= "end"  th:value="${endday} " style="width: 200px;"/></li>
+
+						<li>
+							<button  name="button" formaction="/report"> 生成</button>
+						</li>
+						<li>
+						<button name="download"  formaction="/reportdownload" value="yes">下载Excel</button>
+						</li>
+					</ul>
+				
+
+				</div>
+
+
+				<div class="panel panel-default">
+					<div class="panel-heading text-center">
+						<h2>
+							<span class="label background-color" th:text="${startday}+'至'+${endday}+'HR工作报表'"> HR工作报表</span>
+						</h2>
+						
+					</div>
+					<div class="panel-body">
+						<div class="panel panel-default">
+
+							<div class="col-md-12">
+								<table class="table table-bordered">
+									<thead>
+										<tr class="background-color">
+
+											<th class="text-center" style="width: 10%;">职位</th>
+											<th class="text-center" style="width: 10%;">简历</th>
+											<th class="text-center" style="width: 10%;">简历推送</th>
+											<th class="text-center" style="width: 10%;">评估通过</th>
+											<th class="text-center" style="width: 10%;">安排面试</th>
+											<th class="text-center" style="width: 10%;">笔试通过</th>
+											<th class="text-center" style="width: 10%;">面试通过</th>
+											<th class="text-center" style="width: 10%;">发放入职通知</th>
+											<th class="text-center" style="width: 10%;">入职</th>
+											<th class="text-center" style="width: 10%;">备注</th>
+
+
+										</tr>
+									</thead>
+									<tbody>
+										<tr th:each="report:${reportlist}" >
+
+											<td class="text-center" th:text="${report.position}">position</td>
+											<td class="text-center" th:text="${report.resume}">受付</td>
+											<td class="text-center" th:text="${report.toDepartment}">部門推薦</td>
+											<td class="text-center" th:text="${report.DepartmentAccept}">簡歷合格</td>
+											<td class="text-center" th:text="${report.arrangeInterviews}">面試安排</td>
+											<td class="text-center" th:text="${report.paperTestAccept}">筆試合格</td>
+											<td class="text-center" th:text="${report.interviewAccept}">面試合格</td>
+											<td class="text-center" th:text="${report.offer}">offer確定</td>
+											<td class="text-center" th:text="${report.entry}">入職確定</td>
+											<td class="text-center"><input type="text" name="beizhu" th:value="${report.beizhu}"
+												id="beizhu" /></td>
+
+
+										</tr>
+
+									</tbody>
+								</table>
+							</div>
+
+						</div>
+
+
+
+					</div>
+				</div>
+
+
+
+
+			</div>
+
+
+		</div>
+
+</form>
+
+	</div>
+	
+	<script>
+		var start = {
+			elem : '#start',
+			format : 'YYYY-MM-DD',
+// 			min : laydate.now(), //设定最小日期为当前日期
+			max : laydate.now(),//最大日期
+			istime : true,
+			istoday : false,
+			choose : function(datas) {
+				end.min = datas; //开始日选好后，重置结束日的最小日期
+				end.start = datas //将结束日的初始值设定为开始日
+			}
+		};
+		var end = {
+			elem : '#end',
+			format : 'YYYY-MM-DD',
+// 			min : laydate.now(),
+			max : laydate.now(),
+			istime : true,
+			istoday : false,
+			choose : function(datas) {
+				start.max = datas; //结束日选好后，重置开始日的最大日期
+			}
+		};
+		laydate(start);
+		laydate(end);
+	</script>
+
+
+</body>
+</html>

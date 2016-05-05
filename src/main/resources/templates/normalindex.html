@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta name="author" content="dong.yufei" />
+<meta charset="utf-8" />
+<object th:include="fragments/navbar :: head" th:remove="tag"></object>
+<object th:replace="fragments/button :: script" th:remove="tag"></object>
+<script>
+	$(document).ready(function() {
+		$("#left-nav").load("/iver/ivlist_type_nav");
+		$("#home_page_pending_interview").load("/iver/simple_info");
+	});
+</script>
+</head>
+
+<body>
+	<div th:replace="fragments/navbar :: navbar"></div>
+	<div class="alert alert-danger" id="msg" role="alert">...</div>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-2">
+				<button class="btn btn-success" onclick="location.href='/myinterview';">我的面试列表</button>
+			</div>
+			<div class="col-md-8">
+				<div id="home_page_pending_interview"></div>
+			</div>
+			<div class="col-md-2">
+				<div class="hide">
+					<table class="table table-bordered">
+						<tr>
+							<td><h1>一个日历</h1></td>
+						</tr>
+					</table>
+				</div>
+				<table class="table table-bordered">
+					<tr>
+						<td>
+							<ul class="nav">
+								<li><b>帮助</b></li>
+								<li><a href="/interview/help?page=0">HR功能介绍</a></li>
+								<li><a href="/interview/help?page=1">Leader功能介绍</a></li>
+								<li><a href="/interview/help?page=2">面试官功能介绍</a></li>
+								<li><a href="/interview/help?page=3">用户权限</a></li>
+							</ul>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<object th:include="fragments/button :: modal" th:remove="tag"></object>
+
+</body>
+</html>

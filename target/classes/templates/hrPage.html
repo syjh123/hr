@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+<!--*@ 李松峰  lisongfeng7788@gmail.com/li.songfeng@navercorp.com  -->
+
+<title>Recurit System</title>
+<link rel="stylesheet" type="text/css" href="css/default.css" />
+<link href="css/fileinput.css" media="all" rel="stylesheet" type="text/css" />
+<link href="/webjars/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" media="screen" />
+
+
+<object th:include="fragments/navbar :: head" th:remove="tag"></object>
+
+<script src="/js/laydate.js"></script>
+<script src="/webjars/jquery/1.11.3/jquery.min.js"></script>
+<script src="/webjars/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="js/fileinput.js" type="text/javascript"></script>
+<script src="js/fileinput_locale_zh.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="/js/resumeRelated.js"></script>
+<script type="text/javascript" src="/js/hr.js"></script>
+<script type="text/javascript" src="/js/majorList.js"></script>
+<script type="text/javascript" src="/js/majorSelect.js"></script>
+<script type="text/javascript" src="/js/chinaUniversityList.js"></script>
+<script type="text/javascript" src="/js/chinaUniversitySelect.js"></script>
+<script th:inline="javascript">
+
+
+//	$(document).ready(mainfunction);
+	var url = "/resumePage";
+	$.ajax({
+		type : "POST",
+		url : url,
+		data : {
+			page : 1
+		},
+		success : mainfunction
+	});
+	function mainfunction(date) {
+		console.log(date);
+		$("#resumebox").empty();
+		var totalpage = date["totalpage"];
+		var resume = date["resume"];
+		var channel = date["channel"];
+		var englishlevel = date["englishlevel"];
+		var japaneselevel = date["japaneselevel"];
+		var koreanlevel = date["koreanlevel"];
+
+		console.log(channel);
+		var pisition = date["pisition"];
+		var resumebox = $("#resumebox");
+		
+		var newInfos = date['newInfos'];
+		for (i = 0; resume.length > i; i++) {
+			
+			var rsj = resume[i];
+			var tr = $("<tr></tr>");
+			tr.attr("id", "collist" + rsj["id"]);
+
+			var cb = $('<input name = "resume_id" type="checkbox"/>');
+			cb.attr("value", rsj["id"]);
+			
+			
+			tr.append(cb);
+			
+			
+			var cbox = $("<td></td>");
+			cbox.append(cb);
+			var isNew = false;
+			if(newInfos[i]) {
+				isNew = true;
+			}
+			if(isNew) {
+				var nc = $("<label>new</label>");
+				cbox.append(nc);
+			}
+			cbox.css("color","red");
+			cbox.css("width","60px");
+			
+			tr.append(cbox);
+			
+			var idlink =$("<td></td>");
+			link = $("<a></a>");
+			var sn = rsj['sn'];
+			if(sn==null || sn == "") {
+				sn = "查看";
+			}
+			link.append(sn);
+			link.attr("href","/resumepage?id=" + rsj['id']);
+			idlink.append(link);
+			tr.append(idlink);
+
+			/* var sn = $("<td></td>");
+			sn.append(rsj["sn"]);
+			tr.append(sn); */
+
+			var name = $("<td></td>");
+			name.append(rsj["name"]);
+			tr.append(name);
+			
+			var age = $("<td></td>");
+			age.append(rsj["age"]);
+			tr.append(age);
+			
+			var school = $("<td></td>");
+			school.append(rsj["school_name"]);
+			tr.append(school);
+			
+			var major = $("<td></td>");
+			major.append(rsj["major"]);
+			tr.append(major);
+/* 			<td>年龄</td>
+			<td>学校</td>
+			<td>专业</td> */
+
+			var channelbox = $("<td></td>");
+			console.log(channel);
+//			console.log(rsj);
+//			console.log(channel[rsj["channel_id"]]);		
+			
+			
+			channelbox.append(channel[rsj["channel_id"]]);
+			tr.append(channelbox);
+
+			var position = $("<td></td>");
+			position.append(pisition[rsj["position"]]);
+			tr.append(position);
+
+			var experience = $("<td></td>");
+			var exp =rsj["experience"];
+			experience.append(exp);
+			if(exp>0 ) {
+				experience.append("年");
+			}
+			
+			tr.append(experience);
+
+			/* 			var school_rank = $("<td></td>");
+			 school_rank.append(rsj["school_rank"]);
+			 tr.append(school_rank); */
+
+			var degree = $("<td></td>");
+			 degree.append(rsj["degree"]);
+			
+			tr.append(degree);
+
+			/* var isbat = $("<td></td>");
+			if (rsj["is_bat"] == false) {
+				isbat.append("否");
+			} else {
+				isbat.append("是");
+			}
+			tr.append(isbat); */
+
+			var create_date = $("<td></td>");
+			create_date.append(getSmpFormatDateByLong(rsj["create_date"],true));
+			tr.append(create_date);
+
+			
+			var la = "";
+			var lang_ability = $("<td></td>");
+			la = englishlevel[rsj["english_level"]];
+			if(la!=null) {
+				lang_ability.append(la+"<br/>");
+			}
+			la = koreanlevel[rsj["korean_level"]];
+			if(la !=null) {
+				lang_ability.append(la+"<br/>");
+			}
+			la = japaneselevel[rsj["japanese_level"]];
+			if(la!=null) {
+				lang_ability.append(la);
+			}
+			tr.append(lang_ability);
+			
+			/* var english_level = $("<td></td>");
+			console.log(date);
+			english_level.append(englishlevel[rsj["english_level"]]);
+			tr.append(english_level);
+
+			var korean_level = $("<td></td>");
+			korean_level.append(koreanlevel[rsj["korean_level"]]);
+			tr.append(korean_level);
+
+			var korean_level = $("<td></td>");
+			korean_level.append(japaneselevel[rsj["japanese_level"]]);
+			tr.append(korean_level); */
+
+			var editCb = $("<td></td>");
+			var edit = $("<a></a>");
+			edit.append("编辑  ");
+			edit.attr("href", "/editresume?id=" + rsj["id"]);
+			editCb.append(edit);
+
+			var dele = $("<a></a>");
+			dele.append("删除  ");
+			dele.attr("onclick", "deleteresume(" + rsj["id"] + ")");
+			editCb.append(dele);
+
+			if (rsj['resume_path'] != null) {
+				var down = $("<a></a>");
+				down.append("下载");
+				down.attr("href", "/resumedownload?id=" + rsj['id']);
+				editCb.append(down);
+			}
+			tr.append(editCb);
+			resumebox.append(tr);
+
+		}
+		var totalpage = date["totalpage"];
+		var currentpage = date["currentpage"];
+
+		generateSub(totalpage, currentpage);
+	}
+	function generateSub(totalPage, currentPage) {
+		$("#partnow").attr("class", "disabled");
+		$("#partnowa").text(currentPage);
+		$("#partnowa").attr("href", "#");
+//		console.log(totalPage);
+//		console.log(currentPage);
+		if (totalPage == 1) {
+			$("#partfirst").attr("class", "disabled");
+			$("#partpre").attr("class", "disabled");
+			$("#partnext").attr("class", "disabled");
+			$("#partlast").attr("class", "disabled");
+
+			$("#partfirsta").attr("href", "#");
+			$("#partprea").attr("href", "#");
+			$("#partnexta").attr("href", "#");
+			$("#partlasta").attr("href", "#");
+		}
+
+		if (currentPage == 1) {
+
+			$("#partfirst").attr("class", "disabled");
+			$("#partpre").attr("class", "disabled");
+
+			$("#partfirsta").attr("onclick", "#");
+			$("#partprea").attr("onclick", "#");
+
+		} else {
+
+			$("#partfirst").attr("class", "#");
+			$("#partpre").attr("class", "#");
+
+			$("#partfirsta").attr("onclick", "submitsearch(" + 1 + ")");
+			$("#partprea").attr("onclick",
+					"submitsearch(" + (currentPage - 1) + ")");
+		}
+		if (currentPage == totalPage) {
+			$("#partnext").attr("class", "disabled");
+			$("#partlast").attr("class", "disabled");
+
+			$("#partnexta").attr("onclick", "#");
+			$("#partlasta").attr("onclick", "#");
+		} else {
+
+			$("#partnext").attr("class", "");
+			$("#partlast").attr("class", "");
+
+			$("#partnexta").attr("onclick",
+					"submitsearch(" + (currentPage + 1) + ")");
+			$("#partlasta").attr("onclick", "submitsearch(" + totalPage + ")");
+		}
+
+	}
+
+	function submitsearch(page) {
+		if (page == null) {
+			page = 1;
+		}
+		var sn = $("#search_sn").val();
+		var name = $("#search_name").val();
+		var channel_id = $("#search_channel").val();
+		var position = $("#search_position").val();
+		
+		var english_level = $("#search_english_level").val();
+		var japanese_level = $("#search_japanese_level").val();
+		var korean_level = $("#search_korean_level").val();
+		var is_bat = $("#is_bat").val();
+		var sex = $("#sex").val();
+		var begintime = $("#begintime").val();
+//		alert(begintime);
+		var endtime = $("#endtime").val();
+		var beginage = $("#beginage").val();
+		var endage = $("#endage").val();		
+
+		var schoolname = $("#selectSchool").val();
+		var major = $("#selectMajor").val();
+		
+		if(major == "点击选择专业"){
+			major="";
+		}
+		if(schoolname == "点击选择学校"){
+			schoolname="";
+		}
+		//todo check the righeness of number;
+		var url = "/search"
+		parms = {
+			sn:sn,
+			name : name,
+			channel_id : channel_id,
+			positionid : position,
+			english_level:english_level,
+			japanese_level:japanese_level,
+			korean_level:korean_level,
+			page : page,
+			begintime:begintime,
+			endtime:endtime,
+			major:major,
+			schoolname:schoolname,
+			beginage:beginage,
+			endage:endage,
+			is_bat:is_bat,
+			sex:sex
+		}
+		$.ajax({
+			type : "POST",
+			url : url,
+			data : parms,
+			success : mainfunction
+		});
+	}
+	function deleteresume(id) {
+		if (!confirm("sure to delete")) {
+			return;
+		}
+		var url = "/deleteResume"
+		parms = {
+			id : id
+		}
+		$.ajax({
+			type : "POST",
+			url : url,
+			data : parms,
+			success : function deletecol() {
+				$("#collist" + id).remove();
+				alert("删除成功");
+			}
+		});
+	}
+
+	/* 	function recomendResume() {
+	 //		var data = new Array();
+	 var data = {
+	 'resume_id' : []
+	 };
+	 $("input[name='resume_id']:checked").each(function(i) {
+	 data['resume_id'].push($(this).val());
+	 });
+
+	 $.ajax({
+	 url : "/interview/recommend", // link of your "whatever" php
+	 type : "get",
+	 data : data,
+	 traditional : true
+	 });
+	 } */
+
+	function recomendResume() {
+		/*<![CDATA[*/
+		var url = "/interview/recommend" + "?";
+
+		/* 		var form = $("<form> </form>");
+		 form.attr("method","get");
+		 form.attr({
+		 "action":url
+		 });		 */
+
+		/* 				
+		 $("input[name='resume_id']:checked").each(function(i) {
+		 var input = $("<input></input>");
+		 input.attr("type","checkbox");
+		 input.attr("name","resume_id");
+		 input.val($(this).val());
+		 form.append(input);
+		 });		 */
+		var a = 1;
+		$("input[name='resume_id']:checked").each(function(i) {
+			if (a != 1) {
+				url = url + '&';
+			}
+			a = a + 1;
+			url = url + "resume_id=" + $(this).val();
+		})
+		if(a == 1){
+			alert("请选择一个简历!");
+			return;
+		}
+		window.location.href = url;
+		/*]]>*/
+	}
+	 
+		function submitfile() {
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST','/upload',true);
+			var formData = new FormData();
+			
+			console.log( $("#file").get(0).files[0])
+			
+			formData.append('file',$("#file").get(0).files[0]);
+			formData.append('name',  $("#t").val());
+			formData.append('resumeid', document.getElementById("resumeid").value);
+//			alert("id--:"+document.getElementById("resumeid").value);
+//	 		console.log("test ")
+			
+			xhr.send(formData);
+//			alert("success");
+			xhr.onreadystatechange = function(){
+//				alert(xhr.responseText);
+	 			if (xhr.readyState === 4)
+	    		{
+	   				var data=xhr.responseText;
+					console.log(data);
+					var jsonResponse = JSON.parse(data);
+		//			console.log(jsonResponse["id"]);
+		
+					var id = jsonResponse["status"];
+//					alert("id:"+id);
+					console.log(id.length);
+					console.log(123);
+					document.getElementById("resumeid").value = id;
+					$("resumeid").val(id);
+//					alert($("resumeid").val());
+	    		}
+	 	　　     };	    
+		}
+	 
+</script>
+<script>
+	function refreshPage() {
+		location.reload();
+	}
+</script>
+<style>
+body {
+	padding-top: 50px;
+}
+
+.two-line-button {
+	width: 50px;
+	height: 80px;
+}
+</style>
+<style type="text/css">
+.form-control {font-size =10px;
+	
+}
+
+#choose-box-wrapper {
+	width: 652px;
+	background-color: #000;
+	_filter: alpha(opacity = 50);
+	_background-color: rgba(0, 0, 0，1);
+	padding: 2px;
+	border-radius: 5px;
+	display: none;
+}
+
+#choose-box {
+	border: 1px solid #005EAC;
+	width: 650px;
+	background-color: white;
+}
+
+#choose-box-title {
+	background: #3777BC;
+	color: white;
+	padding: 4px 10px 5px;
+	font-size: 14px;
+	font-weight: 700;
+	margin: 0;
+}
+.form-control {
+	height:30px;
+	font-size:6px;
+}
+option {
+	font:12px;
+}
+#choose-box-title span {
+	font-family: Tahoma, Verdana, STHeiTi, simsun, sans-serif;
+}
+
+#choose-a-majorClass, #choose-a-major {
+	margin: 5px 8px 10px 8px;
+	border: 1px solid #C3C3C3;
+}
+
+#choose-a-majorClass a {
+	display: inline-block;
+	height: 18px;
+	line-height: 18px;
+	color: #005EAC;
+	text-decoration: none;
+	font-size: 9pt;
+	font-family: Tahoma, Verdana, STHeiTi, simsun, sans-serif;
+	margin: 2px 5px;
+	padding: 1px;
+	text-align: center;
+}
+
+#choose-a-majorClass a:hover {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+#choose-a-majorClass .choosen {
+	background-color: #005EAC;
+	color: white;
+}
+
+#choose-a-major {
+	overflow-x: hidden;
+	overflow-y: auto;
+	height: 200px;
+}
+
+#choose-a-major a {
+	height: 18px;
+	line-height: 18px;
+	color: #005EAC;
+	text-decoration: none;
+	font-size: 9pt;
+	font-family: Tahoma, Verdana, STHeiTi, simsun, sans-serif;
+	float: left;
+	width: 170px;
+	margin: 4px 0px 4px 12px;
+	padding-left: 10px;
+	background:
+		url(http://ww2.sinaimg.cn/large/005ItG0Rjw1er8sxnnnlpg3004004019.gif)
+		no-repeat 0 9px;
+}
+
+#choose-a-major a:hover {
+	background-color: #005EAC;
+	color: white;
+	cursor: pointer;
+}
+
+#choose-box-bottom {
+	background: #F0F5F8;
+	padding: 8px;
+	text-align: right;
+	border-top: 1px solid #CCC;
+	height: 40px;
+}
+
+#choose-box-bottom input {
+	vertical-align: middle;
+	text-align: center;
+	background-color: #005EAC;
+	color: white;
+	border-top: 1px solid #B8D4E8;
+	border-left: 1px solid #B8D4E8;
+	border-right: 1px solid #114680;
+	border-bottom: 1px solid #114680;
+	cursor: pointer;
+	width: 60px;
+	height: 25px;
+	margin-top: 6px;
+	margin-right: 6px;
+}
+</style>
+<style type="text/css">
+#choose-box-wrapper-school {
+	width: 652px;
+	background-color: #000;
+	_filter: alpha(opacity = 50);
+	_background-color: rgba(0, 0, 0，1);
+	padding: 2px;
+	border-radius: 5px;
+	display: none;
+}
+
+#choose-box {
+	border: 1px solid #005EAC;
+	width: 650px;
+	background-color: white;
+}
+
+#choose-box-title {
+	background: #3777BC;
+	color: white;
+	padding: 4px 10px 5px;
+	font-size: 14px;
+	font-weight: 700;
+	margin: 0;
+}
+
+#choose-box-title span {
+	font-family: Tahoma, Verdana, STHeiTi, simsun, sans-serif;
+}
+
+#choose-a-province, #choose-a-school {
+	margin: 5px 8px 10px 8px;
+	border: 1px solid #C3C3C3;
+}
+
+#choose-a-province a {
+	display: inline-block;
+	height: 18px;
+	line-height: 18px;
+	color: #005EAC;
+	text-decoration: none;
+	font-size: 9pt;
+	font-family: Tahoma, Verdana, STHeiTi, simsun, sans-serif;
+	margin: 2px 5px;
+	padding: 1px;
+	text-align: center;
+}
+
+#choose-a-province a:hover {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+#choose-a-province .choosen {
+	background-color: #005EAC;
+	color: white;
+}
+
+#choose-a-school {
+	overflow-x: hidden;
+	overflow-y: auto;
+	height: 200px;
+}
+
+#choose-a-school a {
+	height: 18px;
+	line-height: 18px;
+	color: #005EAC;
+	text-decoration: none;
+	font-size: 9pt;
+	font-family: Tahoma, Verdana, STHeiTi, simsun, sans-serif;
+	float: left;
+	width: 170px;
+	margin: 4px 0px 4px 12px;
+	padding-left: 10px;
+	background:
+		url(http://ww2.sinaimg.cn/large/005ItG0Rjw1er8sxnnnlpg3004004019.gif)
+		no-repeat 0 9px;
+}
+
+#choose-a-school a:hover {
+	background-color: #005EAC;
+	color: white;
+	cursor: pointer;
+}
+
+#choose-box-bottom {
+	background: #F0F5F8;
+	padding: 8px;
+	text-align: right;
+	border-top: 1px solid #CCC;
+	height: 40px;
+}
+
+#choose-box-bottom input {
+	vertical-align: middle;
+	text-align: center;
+	background-color: #005EAC;
+	color: white;
+	border-top: 1px solid #B8D4E8;
+	border-left: 1px solid #B8D4E8;
+	border-right: 1px solid #114680;
+	border-bottom: 1px solid #114680;
+	cursor: pointer;
+	width: 60px;
+	height: 25px;
+	margin-top: 6px;
+	margin-right: 6px;
+	font-size: 6px;
+}
+</style>
+</head>
+<body>
+	<div th:replace="fragments/navbar :: navbar"></div>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<h1></h1>
+			</div>
+		</div>
+		<div class="row">
+			<!-- <div class="col-md-12">
+					<a class="btn btn-default" href="/functionpage?status=batch">批量导入简历</a>
+			</div> -->
+			<div class="col-md-12">
+				<div class="row">
+					<br />
+					<form id="searchFrom">
+						<div class="col-md-11">
+							<div class="row">
+								<div class="col-md-1">
+									序列号 <input class="form-control" type="text" name="sn" id="search_sn" style="width: 75px;" value="" />
+								</div>
+								<div class="col-md-1">
+									姓名 <input class="form-control" type="text" name="name" id="search_name" style="width: 75px;" value="" />
+									<!-- style="width: 100px;" -->
+								</div>
+								<div class="col-md-2">
+									渠道： <select class="form-control" id="search_channel" name="channel">
+										<option value="-1">全选</option>
+										<option th:each="channel:${channels}" th:value="${channel.id}" th:text="${channel.name}"></option>
+									</select>
+								</div>
+								<div class="col-md-2">
+									职位：<select class="form-control" id="search_position" name="position">
+										<option value="-1">全部职位</option>
+										<option th:each="position:${positions}" th:value="${position.id}" th:text="${position.name}"></option>
+									</select>
+								</div>
+								<div class="col-md-2">
+									英语水平 <select class="form-control" id="search_english_level" name="english_level">
+										<option value="-1">无限制</option>
+										<option th:each="lanLev:${englishlevel}" th:value="${lanLev.id}" th:text="${lanLev.level_type}"></option>
+									</select>
+								</div>
+								<div class="col-md-2">
+									日语水平 <select class="form-control" id="search_japanese_level" name="japanese_level">
+										<option value="-1">无限制</option>
+										<option th:each="lanLev:${japaneselevel}" th:value="${lanLev.id}" th:text="${lanLev.level_type}"></option>
+									</select>
+								</div>
+								<div class="col-md-2">
+									韩语水平<select class="form-control" id="search_korean_level" name="korean_level">
+										<option value="-1">无限制</option>
+										<option th:each="lanLev:${koreanlevel}" th:value="${lanLev.id}" th:text="${lanLev.level_type}"></option>
+									</select>
+								</div>
+							</div>
+							<div style="height:10px"></div>
+							<div class="row">
+								<div class="col-md-2">
+									开始时间:<input class="form-control" id="begintime" name="begintime" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})" />
+								</div>
+								<div class="col-md-2">
+									结束日期 :<input class="form-control" id="endtime" name="endtime" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})" />
+									<!-- style="width: 100px;" -->
+								</div>
+								<div class="col-md-2">
+									<div class="row">
+										<div class="col-md-offset-1">搜索年龄范围：</div>
+									</div>
+									<div class="row">
+										<div class="col-md-5">
+											<input class="form-control" id="beginage"></input>
+										</div>
+										<div class="col-md-5">
+											<input class="form-control" id="endage"></input>
+										</div>
+									</div>
+
+								</div>
+								<div class="col-md-2">
+									学校名称：
+									<div>
+										<input class="form-control" value='点击选择学校' id='selectSchool' type='text' />
+										<div id="choose-box-wrapper-school" style="z-index: 1;">
+											<div id="choose-box">
+												<div id="choose-box-title">
+													<span>选择学校</span>
+												</div>
+												<p style="font-size: 12px; text-indent: 1em;">
+													<span>搜索：</span><input id="searchSchool" type="text" value="搜索学校" />
+												</p>
+												<div id="choose-a-province"></div>
+												<div id="choose-a-school"></div>
+												<div id="choose-box-bottom">
+													<input type="button" id='close-school' value="关闭" />
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-2">
+									专业名称：
+									<div>
+										<input class="form-control" value='点击选择专业' id='selectMajor' type='text' />
+										<div id="choose-box-wrapper" style="z-index: 2">
+											<div id="choose-box">
+												<div id="choose-box-title">
+													<span>选择专业</span>
+												</div>
+												<p style="font-size: 12px; text-indent: 1em;">
+													<span>搜索：</span><input id="searchMajor" type="text" value="搜索专业" />
+												</p>
+												<div id="choose-a-majorClass"></div>
+												<div id="choose-a-major"></div>
+												<div id="choose-box-bottom">
+													<input type="button" id='close' value="关闭" />
+												</div>
+											</div>
+										</div>
+									</div>
+
+								</div>
+
+
+								<div class="col-md-2">
+									性别 <select class="form-control" id="sex" name="english_level" style="width: 65px">
+
+										<option value="1">男</option>
+										<option value="0">女</option>
+									</select>
+								</div>
+								<!-- <div class="col-md-1">
+
+									是否BAT <select class="form-control" id="is_bat" name="english_level" style="width: 65px">
+
+										<option value="1">是</option>
+										<option value="0">否</option>
+									</select>
+
+								</div> -->
+							</div>
+						</div>
+						<div class="col-md-1">
+<!-- 							<div class="row"> -->
+<!-- 								<div class="col-md-1"> -->
+		 <input type="button" onclick="submitsearch(1)" id="searchFromBtn" class="two-line-button form-control btn btn-success" style=" height:80px; margin: 20px 0px 0px 0px"  value="查找 " />
+<!-- 								</div> -->
+<!-- 							</div> -->
+						</div>
+
+					</form>
+				</div>
+			</div>
+			<div class="col-md-12">
+				<br />
+				<table class="table table-hover" style="cellspacing: 0; cellpadding: 0; width: 100%;">
+					<tr>
+						<td>推荐</td>
+						<td>序列号</td>
+						<td>姓名</td>
+						<td>年龄</td>
+						<td>学校</td>
+						<td>专业</td>
+						<td>来源</td>
+						<td>职位</td>
+						<td width="80px">工作年限</td>
+						<td>学历</td>
+						<td>创建时间</td>
+						<td width="99px">语言水平</td>
+
+						<td width="110">操作</td>
+					</tr>
+					<tbody id="resumebox">
+					</tbody>
+				</table>
+				<br clear="all" />
+			</div>
+			<div class="col-md-12">
+				<div class="row">
+					<div class="col-md-1">
+						<br />
+						<button onclick="recomendResume()" type="submit" class="btn btn-default">推荐简历</button>
+					</div>
+					<div class="col-md-5">
+						<nav>
+							<ul class="pagination">
+								<li id="partfirst"><a id="partfirsta" href="#" aria-label="Previous"> <span aria-hidden="true">&laquo;首页</span>
+								</a></li>
+								<li id="partpre"><a id="partprea" href="#">上一页</a></li>
+								<li id="partnow"><a id="partnowa">1</a></li>
+								<li id="partnext"><a id="partnexta" href="#">下一页</a></li>
+								<li id="partlast"><a id="partlasta" href="#" aria-label="Next"> <span aria-hidden="true">&raquo;尾页</span>
+								</a></li>
+							</ul>
+						</nav>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="loading"></div>
+
+</body>
+
+</html>

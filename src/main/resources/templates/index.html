@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+<meta name="author" content="dong.yufei" />
+<meta charset="utf-8" />
+<object th:include="fragments/navbar :: head" th:remove="tag"></object>
+<object th:replace="fragments/button :: script" th:remove="tag"></object>
+<script>
+	$(document).ready(function() {
+		$("#home_page_pending_interview").load("/iver/simple_info");
+		bindMenuClick();
+	});
+
+	$(document).ready(function() {
+		var url = "/getAllNeed";
+		$.ajax({
+			type : "POST",
+			url : url,
+			success : mainfunction
+		});
+	});
+	function mainfunction(date) {
+		if (date == null || date.length == 0) {
+			alert("操作有误！");
+			location.reload();
+		}
+		$("#demandBox").empty();
+		var department = date["department"];
+		var need = date["need"];
+		var position = date["position"];
+		var positiond = date["positiond"];
+		var length = positiond.length;
+		console.log("-----" + length);
+
+		var resumebox = $("#demandBox");
+		for (i = 0; need.length > i; i++) {
+			var rsj = need[i];
+			var tr = $("<tr></tr>");
+			tr.attr("id", "demandbox" + rsj["id"]);
+
+			var dpt = $("<td></td>");
+			dpt.append(department[rsj["department_id"]]);
+			tr.append(dpt);
+
+			var a = $("<a></a>");
+			a.attr("title", "岗位描述");
+			a.attr("data-toggle", "popover");
+			a.attr("data-trigger", "hover");
+			a.attr("data-content", positiond[rsj["position"]]);
+			console.log("-----" + positiond[rsj["position"]]);
+			a.append(position[rsj["position"]]);
+
+			var pzs = $("<td></td>");
+			// 			pzs.append((position[rsj["position"]]));
+
+			pzs.append(a);
+			tr.append(pzs);
+
+			var need_amount = $("<td></td>");
+			need_amount.append(rsj["need_amount"]);
+			tr.append(need_amount);
+
+			var apply_amount = $("<td></td>");
+			apply_amount.append(rsj["apply_amount"]);
+			tr.append(apply_amount);
+
+			var amount = $("<td></td>");
+			amount.append(rsj["need_amount"] - rsj["apply_amount"]);
+			tr.append(amount);
+
+			resumebox.append(tr);
+
+		}
+		$('[data-toggle="popover"]').popover();
+
+	}
+
+	function createInterview(interviewId) {
+		window.location = "/interview/edit?interview_id=" + interviewId;
+		$('button').attr('disabled', "true");
+		setTimeout(function() {
+			$('button').removeAttr("disabled");//把按钮id为submit的按钮启用
+		}, 5000);
+	}
+</script>
+
+</head>
+
+<body>
+	<div th:replace="fragments/navbar :: navbar(whosePage=hr)"></div>
+	<div class="alert alert-danger" id="msg" role="alert">...</div>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-2">
+				<div th:replace="fragments/navbar :: hrleftbar"></div>
+			</div>
+			<div class="col-md-10">
+				<div class="row">
+					<div class="col-md-12">
+
+						<h4>岗位需求</h4>
+
+						<table class="table table-bordered">
+							<tr>
+								<th>部门</th>
+								<th>岗位</th>
+								<!-- 						<th>岗位要求</th> -->
+								<th>年度需求量</th>
+								<th>已入职</th>
+								<th>剩余需求</th>
+
+							</tr>
+							<tbody id="demandBox">
+							</tbody>
+						</table>
+						<button class="btn btn-default" onclick="location.href='/functionpage?status=demand';">新增需求</button>
+						<button class="btn btn-default" onclick="location.href='/functionpage?status=demand';">修改需求</button>
+					</div>
+					<div class="col-md-12">
+						<br />
+						<div id="home_page_pending_interview"></div>
+						<button class="btn btn-default" onclick="location.href='/myinterview';">查看面试详情</button>
+					</div>
+				</div>
+
+			</div>
+			
+		</div>
+	</div>
+
+	<object th:include="fragments/button :: modal" th:remove="tag"></object>
+
+</body>
+</html>
